@@ -1,0 +1,104 @@
+# compatible with AutoRepo-Worker 0.0.5 issue#1 comments
+name: Parse and Process Trigger
+on: issue_comment
+
+jobs:
+  parse_trigger:
+    name: Parse Trigger
+    runs-on: windows-latest
+
+    # Only bot comments on the trigger issue (#1)
+    if: |
+      github.event.comment.user.login == 'just-some-bot' &&
+      github.event.issue.number == 1
+
+    steps:
+      # Set git to use the bot's credentials
+      - name: Setup Git
+        run: |
+          git config --global user.name 'just-some-bot'
+          git config --global user.email 'justsomeplugins@zbee.codes'
+
+      # Extract the comment body to a file `comment_body.txt`
+      - name: Extract Comment Body
+        id: extract_comment
+        run: echo "${{ github.event.comment.body }}" > comment_body.txt
+        shell: bash
+
+      # Save just the JSON by itself to `parsed_json.json`
+      - name: Parse JSON from Comment
+        id: parse_json
+        run: |
+          COMMENT_BODY=$(cat comment_body.txt)
+          JSON_BLOCK=$(echo "$COMMENT_BODY" | sed -n '/```json/,/```/p' | sed '1d;$d')
+          echo "$JSON_BLOCK" > parsed_json.json
+        shell: bash
+
+      # Convert the trigger's JSON to Environment Variables
+      # e.g. `env.trigger_code_branch`
+      - name: Parse JSON values to Environment Variables
+        id: set_env_vars
+        run: |
+          JSON=$(cat parsed_json.json)
+          for key in $(echo $JSON | jq -r 'keys[]'); do
+            value=$(echo $JSON | jq -r --arg key "$key" '.[$key]')
+            echo "trigger_$key=$value" >> $GITHUB_ENV
+          done
+        shell: bash
+
+      # The bot auto-accepts collaboration invites every night,
+      # but we are doing it here to make sure that the bot has
+      # access to the repo
+      - name: Auto Accept Collaboration invites
+        uses: kbrashears5/github-action-auto-accept-collabs@v2.0.0
+        with:
+          TOKEN: ${{ secrets.BOT_INVITE_ACCEPT_TOKEN }}
+
+      # Set up .NET for building later
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      # Download Dalamud development tools
+      - name: Download Dalamud
+        run: |
+          Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/latest.zip -OutFile dalamud.zip
+          Expand-Archive -Force dalamud.zip "$env:AppData\XIVLauncher\addon\Hooks\dev\"
+
+      # Setup folder to build into
+      - name: Create Folder in $HOME
+        run: mkdir $HOME/builds
+        shell: bash
+
+  # Build the main branch if it was requested in the trigger
+  build_main:
+    name: Build Main Branch
+    runs-on: windows-latest
+    needs: parse_trigger
+
+    if: ${{ env.trigger_branch_main != null }}
+
+    uses: build_plugin.yml
+    with:
+      branch: ${{ env.trigger_branch_main }}
+      build_config: ${{ env.trigger_branch_main_build }}
+      version: ${{ env.trigger_branch_main_version }}
+
+  # Build the test branch if it was requested in the trigger
+  build_test:
+    name: Build Test Branch
+    runs-on: windows-latest
+    needs: parse_trigger
+
+    if: ${{ env.trigger_branch_test != null }}
+
+    uses: build_plugin.yml
+    with:
+      branch: ${{ env.trigger_branch_test }}
+      build_config: ${{ env.trigger_branch_test_build }}
+      version: ${{ env.trigger_branch_test_version }}
+
+  # todo: add job to build or update repository json
+  # todo: add job to contribute the plugins to AutoRepo-Web
+  # todo: add job to update list of repos on discord via bot
