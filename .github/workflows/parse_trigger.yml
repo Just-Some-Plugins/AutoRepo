@@ -1,6 +1,15 @@
 # compatible with AutoRepo-Worker 0.0.5 issue#1 comments
 name: Parse and Process Trigger
-on: issue_comment
+on:
+  issue_comment:
+    types: [created]
+    secrets:
+      BOT_INVITE_ACCEPT_TOKEN:
+        description: 'A classic PAT with the full `repo` scope'
+        required: false
+      BOT_READ_REPOS_TOKEN:
+        description: 'A classic PAT with the full `repo` scope'
+        required: false
 
 jobs:
   parse_trigger:
@@ -79,7 +88,7 @@ jobs:
 
     if: ${{ env.trigger_branch_main != null }}
 
-    uses: build_plugin.yml
+    uses: ./.github/workflows/build_plugin.yml
     with:
       branch: ${{ env.trigger_branch_main }}
       build_config: ${{ env.trigger_branch_main_build }}
@@ -93,7 +102,7 @@ jobs:
 
     if: ${{ env.trigger_branch_test != null }}
 
-    uses: build_plugin.yml
+    uses: ./.github/workflows/build_plugin.yml
     with:
       branch: ${{ env.trigger_branch_test }}
       build_config: ${{ env.trigger_branch_test_build }}
