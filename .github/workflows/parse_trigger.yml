@@ -31,7 +31,8 @@ jobs:
       # Extract the comment body to a file `comment_body.txt`
       - name: Extract Comment Body
         id: extract_comment
-        run: echo "${{ github.event.comment.body }}" > comment_body.txt
+        run: |
+          printf "%s" "${{ github.event.comment.body }}" > comment_body.txt
         shell: bash
 
       # Save just the JSON by itself to `parsed_json.json`
