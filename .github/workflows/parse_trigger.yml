@@ -24,6 +24,7 @@ jobs:
     steps:
       # Set git to use the bot's credentials
       - name: Setup Git
+        id: setup_git
         run: |
           git config --global user.name 'just-some-bot'
           git config --global user.email 'justsomeplugins@zbee.codes'
@@ -32,27 +33,28 @@ jobs:
       - name: Parse JSON from Comment
         id: parse_json
         run: |
-          JSON_BLOCK=$(echo "${{ github.event.comment.body }}" | sed -n '/```json/,/```/p' | sed '1d;$d')
-          echo "$JSON_BLOCK" | jq '.' > parsed_json.json
-        shell: bash
+          $commentBody = '${{ github.event.comment.body }}'
+          $jsonBlock = $commentBody -split "`n" | Select-String -Pattern '```json' -Context 1,1 | ForEach-Object { $_.Context.PostContext[0] }
+          $jsonBlock | Out-File -FilePath parsed_json.json
+        shell: pwsh
 
       # Convert the trigger's JSON to Outputs
       # e.g. `steps.set_env_vars.outputs.trigger_branch_main`
       # e.g. `needs.parse_trigger.outputs.trigger_branch_test`
-      - name: Parse JSON values to Environment Variables
+      - name: Parse JSON from Comment
         id: set_env_vars
         run: |
-          $json = Get-Content -Raw -Path parsed_json.json | ConvertFrom-Json
-          foreach ($key in $json.PSObject.Properties.Name) {
-            $value = $json.$key
-            echo "::set-output name=trigger_$key::$value"
-          }
-        shell: pwsh
+          JSON_BLOCK=$(cat <<'EOF'
+            ${{ github.event.comment.body }}
+          EOF | sed -n '/```json/,/```/p' | sed '1d;$d')
+          echo "$JSON_BLOCK" | jq '.' > parsed_json.json
+        shell: bash
 
       # The bot auto-accepts collaboration invites every night,
       # but we are doing it here to make sure that the bot has
       # access to the repo
       - name: Auto Accept Collaboration invites
+        id: accept_invites
         run: |
           # List all repository invitations
           $invitations = Invoke-RestMethod -Uri "https://api.github.com/user/repository_invitations" -Headers @{
@@ -76,22 +78,26 @@ jobs:
 
       # Set up .NET for building later
       - name: Set up .NET
+        id: setup_net
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
       # Download Dalamud development tools
       - name: Download Dalamud
+        id: download_dalamud
         run: |
           Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/latest.zip -OutFile dalamud.zip
           Expand-Archive -Force dalamud.zip "$env:AppData\XIVLauncher\addon\Hooks\dev\"
 
       # Setup folder to build into
       - name: Create Folder in $HOME
+        id: make_builds_folder
         run: mkdir $HOME/builds
         shell: bash
 
       - name: Debugging
+        id: debug
         run: |
           echo "trigger_branch_main: ${{ steps.set_env_vars.outputs.trigger_branch_main }}"
           if [ "${{ steps.set_env_vars.outputs.trigger_branch_main }}" != "null" ]; then
@@ -111,6 +117,7 @@ jobs:
 
     steps:
       - name: Trigger Plugin Build
+        id: trigger_main_build
         uses: ./.github/workflows/build_plugin.yml
         with:
           branch: ${{ needs.parse_trigger.outputs.trigger_branch_main }}
@@ -126,6 +133,7 @@ jobs:
 
     steps:
       - name: Trigger Plugin Build
+        id: trigger_test_build
         uses: ./.github/workflows/build_plugin.yml
         with:
           branch: ${{ needs.parse_trigger.outputs.trigger_branch_test }}
