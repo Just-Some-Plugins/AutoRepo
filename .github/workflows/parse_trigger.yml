@@ -51,7 +51,7 @@ jobs:
           $json = Get-Content -Raw -Path parsed_json.json | ConvertFrom-Json
           foreach ($key in $json.PSObject.Properties.Name) {
             $value = $json.$key
-            echo "trigger_$key=$value" >> $env:GITHUB_ENV
+            echo "::set-output name=trigger_$key::$value"
           }
         shell: pwsh
 
@@ -86,14 +86,14 @@ jobs:
     runs-on: windows-latest
     needs: parse_trigger
 
-    if: ${{ env.trigger_branch_main != null }}
+    if: ${{ needs.parse_trigger.outputs.trigger_branch_main != null }}
 
     steps:
       - name: Trigger Plugin Build
         uses: ./.github/workflows/build_plugin.yml
         with:
-          branch: ${{ env.trigger_branch_main }}
-          build_config: ${{ env.trigger_branch_main_build }}
+          branch: ${{ needs.parse_trigger.outputs.trigger_branch_main }}
+          build_config: ${{ needs.parse_trigger.outputs.trigger_branch_main_build }}
 
   # Build the test branch if it was requested in the trigger
   build_test:
@@ -101,14 +101,14 @@ jobs:
     runs-on: windows-latest
     needs: parse_trigger
 
-    if: ${{ env.trigger_branch_test != null }}
+    if: ${{ needs.parse_trigger.outputs.trigger_branch_test != null }}
 
     steps:
       - name: Trigger Plugin Build
         uses: ./.github/workflows/build_plugin.yml
         with:
-          branch: ${{ env.trigger_branch_test }}
-          build_config: ${{ env.trigger_branch_test_build }}
+          branch: ${{ needs.parse_trigger.outputs.trigger_branch_test }}
+          build_config: ${{ needs.parse_trigger.outputs.trigger_branch_test_build }}
 
   # todo: add job to build or update repository json
   # todo: add job to contribute the plugins to AutoRepo-Web
