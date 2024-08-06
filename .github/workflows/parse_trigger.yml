@@ -34,8 +34,8 @@ jobs:
         id: parse_json
         run: |
           $commentBody = @"
-${{ github.event.comment.body }}
-"@
+          ${{ github.event.comment.body }}
+          "@
           $jsonBlock = $commentBody -split "`n" | Select-String -Pattern '```json' -Context 1,1 | ForEach-Object { $_.Context.PostContext[0] }
           $jsonBlock | Out-File -FilePath parsed_json.json
         shell: pwsh
