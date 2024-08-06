@@ -53,8 +53,8 @@ jobs:
       # cat parsed.json for debugging
       - name: Debugging
         id: debug_cat
-        run: cat parsed_.json
-        shell: pwsh
+        run: cat parsed.json
+        shell: bash
 
       # Convert the trigger's JSON to Outputs
       # e.g. `steps.set_env_vars.outputs.trigger_branch_main`
