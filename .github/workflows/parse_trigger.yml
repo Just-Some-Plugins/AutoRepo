@@ -37,30 +37,44 @@ jobs:
           ${{ github.event.comment.body }}
           "@
           $lines = $commentBody -split "`n"
+
           Write-Output "Number of lines in comment body: $($lines.Count)"
           Write-Output "Lines 13 through 28:"
           $lines[12..27] | ForEach-Object { Write-Output $_ }
+
           $jsonBlock = $null
           $json = @()
           $start = $false
+
           foreach ($line in $lines) {
-            if ($line -contains '```json') {
+            if ($line -match '```json') {
               $start = $true
-            } elseif ($line -contains '```' -and $start) {
+            } elseif ($line -match '```' -and $start) {
               $start = $false
               $jsonBlock = $json -join "`n"
               break
             } elseif ($start) {
-              $json += $line
+              if ($line.Trim() -ne '') {
+                $json += $line
+              }
             }
           }
+
           if (-not $jsonBlock) {
             Write-Error "No JSON block found in the comment."
             exit 1
           }
+
           Write-Output "Extracted JSON Block:"
           Write-Output $jsonBlock
-          $jsonBlock | Out-File -FilePath parsed.json
+
+          $outputFilePath = "parsed.json"
+          $jsonBlock | Out-File -FilePath $outputFilePath
+
+          if (-not (Test-Path $outputFilePath)) {
+            Write-Error "Failed to write JSON block to file."
+            exit 1
+          }
         shell: pwsh
 
       - name: Debugging JSON Block
