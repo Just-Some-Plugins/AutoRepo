@@ -42,23 +42,7 @@ jobs:
           Write-Output "Lines 13 through 28:"
           $lines[12..27] | ForEach-Object { Write-Output $_ }
 
-          $jsonBlock = $null
-          $json = @()
-          $start = $false
-
-          foreach ($line in $lines) {
-            if ($line -match '^\s*```json\s*$') {
-              $start = $true
-            } elseif ($line -match '^\s*```\s*$' -and $start) {
-              $start = $false
-              $jsonBlock = $json -join "`n"
-              break
-            } elseif ($start) {
-              if ($line.Trim() -ne '') {
-                $json += $line
-              }
-            }
-          }
+          $jsonBlock = $lines[13..28] -join "`n"
 
           Write-Output "Extracted JSON Block:"
           Write-Output $jsonBlock
@@ -75,11 +59,6 @@ jobs:
             Write-Error "Failed to write JSON block to file."
             exit 1
           }
-        shell: pwsh
-
-      - name: Debugging JSON Block
-        run: |
-          Get-Content -Path parsed.json
         shell: pwsh
 
       # Convert the trigger's JSON to Outputs
