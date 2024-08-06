@@ -36,8 +36,9 @@ jobs:
           $commentBody = @"
           ${{ github.event.comment.body }}
           "@
+          Write-Output $commentBody
           $jsonBlock = $commentBody -split "`n" | ForEach-Object {
-            if ($_ -match '```json') {
+            if ($_ -contains '```json') {
               $start = $true
               $json = @()
             } elseif ($_ -match '```' -and $start) {
