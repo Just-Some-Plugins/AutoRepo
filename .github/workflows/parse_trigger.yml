@@ -86,12 +86,14 @@ jobs:
     runs-on: windows-latest
     needs: parse_trigger
 
-    if: ${{ env:trigger_branch_main != null }}
+    if: ${{ env.trigger_branch_main != null }}
 
-    uses: ./.github/workflows/build_plugin.yml
-    with:
-      branch: ${{ env:trigger_branch_main }}
-      build_config: ${{ env:trigger_branch_main_build }}
+    steps:
+      - name: Trigger Plugin Build
+        uses: ./.github/workflows/build_plugin.yml
+        with:
+          branch: ${{ env.trigger_branch_main }}
+          build_config: ${{ env.trigger_branch_main_build }}
 
   # Build the test branch if it was requested in the trigger
   build_test:
@@ -99,12 +101,14 @@ jobs:
     runs-on: windows-latest
     needs: parse_trigger
 
-    if: ${{ env:trigger_branch_test != null }}
+    if: ${{ env.trigger_branch_test != null }}
 
-    uses: ./.github/workflows/build_plugin.yml
-    with:
-      branch: ${{ env:trigger_branch_test }}
-      build_config: ${{ env:trigger_branch_test_build }}
+    steps:
+      - name: Trigger Plugin Build
+        uses: ./.github/workflows/build_plugin.yml
+        with:
+          branch: ${{ env.trigger_branch_test }}
+          build_config: ${{ env.trigger_branch_test_build }}
 
   # todo: add job to build or update repository json
   # todo: add job to contribute the plugins to AutoRepo-Web
