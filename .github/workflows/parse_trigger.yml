@@ -123,8 +123,8 @@ jobs:
       - name: Debugging
         id: debug
         run: |
-          echo "trigger_branch_main: ${{ steps.set_env_vars.outputs.trigger_branch_main }}"
-          if [ "${{ steps.set_env_vars.outputs.trigger_branch_main }}" != "null" ]; then
+          echo "trigger_branch_main: ${{ steps.set_env_vars.outputs.trigger_branch_test }}"
+          if [ "${{ steps.set_env_vars.outputs.trigger_branch_test }}" != null ]; then
             echo "Condition is true"
           else
             echo "Condition is false"
