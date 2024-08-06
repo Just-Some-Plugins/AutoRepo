@@ -38,6 +38,8 @@ jobs:
           "@
           $lines = $commentBody -split "`n"
           Write-Output "Number of lines in comment body: $($lines.Count)"
+          Write-Output "Lines 13 through 28:"
+          $lines[12..27] | ForEach-Object { Write-Output $_ }
           $jsonBlock = $null
           $json = @()
           $start = $false
