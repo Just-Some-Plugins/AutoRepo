@@ -60,13 +60,13 @@ jobs:
             }
           }
 
+          Write-Output "Extracted JSON Block:"
+          Write-Output $jsonBlock
+
           if (-not $jsonBlock) {
             Write-Error "No JSON block found in the comment."
             exit 1
           }
-
-          Write-Output "Extracted JSON Block:"
-          Write-Output $jsonBlock
 
           $outputFilePath = "parsed.json"
           $jsonBlock | Out-File -FilePath $outputFilePath
