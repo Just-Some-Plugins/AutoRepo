@@ -40,6 +40,12 @@ jobs:
           $jsonBlock | Out-File -FilePath parsed_json.json
         shell: pwsh
 
+      # cat parsed_json.json for debugging
+      - name: Debugging
+        id: debug
+        run: cat parsed_json.json
+        shell: pwsh
+
       # Convert the trigger's JSON to Outputs
       # e.g. `steps.set_env_vars.outputs.trigger_branch_main`
       # e.g. `needs.parse_trigger.outputs.trigger_branch_test`
