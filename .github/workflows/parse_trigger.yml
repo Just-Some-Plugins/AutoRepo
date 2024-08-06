@@ -38,15 +38,18 @@ jobs:
           "@
           $lines = $commentBody -split "`n"
           Write-Output "Number of lines in comment body: $($lines.Count)"
-          $jsonBlock = $lines | ForEach-Object {
-            if ($_ -contains '```json') {
+          $jsonBlock = $null
+          $json = @()
+          $start = $false
+          foreach ($line in $lines) {
+            if ($line -contains '```json') {
               $start = $true
-              $json = @()
-            } elseif ($_ -contains '```' -and $start) {
+            } elseif ($line -contains '```' -and $start) {
               $start = $false
-              $json -join "`n"
+              $jsonBlock = $json -join "`n"
+              break
             } elseif ($start) {
-              $json += $_
+              $json += $line
             }
           }
           if (-not $jsonBlock) {
