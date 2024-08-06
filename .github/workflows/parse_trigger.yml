@@ -82,9 +82,9 @@ jobs:
 
       # Set up .NET for building later
       - name: Set up .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: '8.0.x'
 
       # Download Dalamud development tools
       - name: Download Dalamud
