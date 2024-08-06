@@ -36,7 +36,9 @@ jobs:
           $commentBody = @"
           ${{ github.event.comment.body }}
           "@
-          $jsonBlock = $commentBody -split "`n" | ForEach-Object {
+          $lines = $commentBody -split "`n"
+          Write-Output "Number of lines in comment body: $($lines.Count)"
+          $jsonBlock = $lines | ForEach-Object {
             if ($_ -contains '```json') {
               $start = $true
               $json = @()
@@ -46,6 +48,10 @@ jobs:
             } elseif ($start) {
               $json += $_
             }
+          }
+          if (-not $jsonBlock) {
+            Write-Error "No JSON block found in the comment."
+            exit 1
           }
           Write-Output "Extracted JSON Block:"
           Write-Output $jsonBlock
