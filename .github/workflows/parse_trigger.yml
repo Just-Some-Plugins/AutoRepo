@@ -47,9 +47,9 @@ jobs:
           $start = $false
 
           foreach ($line in $lines) {
-            if ($line -match '```json') {
+            if ($line -match '^\s*```json\s*$') {
               $start = $true
-            } elseif ($line -match '```' -and $start) {
+            } elseif ($line -match '^\s*```\s*$' -and $start) {
               $start = $false
               $jsonBlock = $json -join "`n"
               break
