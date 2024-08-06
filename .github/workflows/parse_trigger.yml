@@ -29,21 +29,31 @@ jobs:
           git config --global user.name 'just-some-bot'
           git config --global user.email 'justsomeplugins@zbee.codes'
 
-      # Parse the JSON from the comment and save it to `parsed_json.json`
+      # Parse the JSON from the comment and save it to `parsed.json`
       - name: Parse JSON from Comment
         id: parse_json
         run: |
           $commentBody = @"
           ${{ github.event.comment.body }}
           "@
-          $jsonBlock = $commentBody -split "`n" | Select-String -Pattern '```json' -Context 1,1 | ForEach-Object { $_.Context.PostContext[0] }
-          $jsonBlock | Out-File -FilePath parsed_json.json
+          $jsonBlock = $commentBody -split "`n" | ForEach-Object {
+            if ($_ -match '```json') {
+              $start = $true
+              $json = @()
+            } elseif ($_ -match '```' -and $start) {
+              $start = $false
+              $json -join "`n"
+            } elseif ($start) {
+              $json += $_
+            }
+          }
+          $jsonBlock | Out-File -FilePath parsed.json
         shell: pwsh
 
-      # cat parsed_json.json for debugging
+      # cat parsed.json for debugging
       - name: Debugging
         id: debug_cat
-        run: cat parsed_json.json
+        run: cat parsed_.json
         shell: pwsh
 
       # Convert the trigger's JSON to Outputs
