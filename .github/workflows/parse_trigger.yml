@@ -47,14 +47,15 @@ jobs:
               $json += $_
             }
           }
+          Write-Output "Extracted JSON Block:"
+          Write-Output $jsonBlock
           $jsonBlock | Out-File -FilePath parsed.json
         shell: pwsh
 
-      # cat parsed.json for debugging
-      - name: Debugging
-        id: debug_cat
-        run: cat parsed.json
-        shell: bash
+      - name: Debugging JSON Block
+        run: |
+          Get-Content -Path parsed.json
+        shell: pwsh
 
       # Convert the trigger's JSON to Outputs
       # e.g. `steps.set_env_vars.outputs.trigger_branch_main`
@@ -62,7 +63,7 @@ jobs:
       - name: Parse JSON values to Outputs
         id: set_env_vars
         run: |
-          $json = Get-Content -Raw -Path parsed_json.json | ConvertFrom-Json
+          $json = Get-Content -Raw -Path parsed.json | ConvertFrom-Json
           foreach ($key in $json.PSObject.Properties.Name) {
             $value = $json.$key
             echo "::set-output name=trigger_$key::$value"
