@@ -92,7 +92,6 @@ jobs:
     with:
       branch: ${{ env.trigger_branch_main }}
       build_config: ${{ env.trigger_branch_main_build }}
-      version: ${{ env.trigger_branch_main_version }}
 
   # Build the test branch if it was requested in the trigger
   build_test:
@@ -106,7 +105,6 @@ jobs:
     with:
       branch: ${{ env.trigger_branch_test }}
       build_config: ${{ env.trigger_branch_test_build }}
-      version: ${{ env.trigger_branch_test_version }}
 
   # todo: add job to build or update repository json
   # todo: add job to contribute the plugins to AutoRepo-Web

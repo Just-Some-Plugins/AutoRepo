@@ -10,10 +10,6 @@ on:
         description: 'The build configuration to use'
         required: true
         type: string
-      version:
-        description: 'The version to build'
-        required: true
-        type: string
     secrets: inherit
 
 jobs:
@@ -29,6 +25,8 @@ jobs:
           ref: ${{ inputs.branch }}
           token: ${{ secrets.BOT_READ_REPOS_TOKEN }}
           submodules: recursive
+
+      # todo: find csproj file and extract the version from it
 
       # Include the plugin's dependencies
       - name: Restore Dependencies
