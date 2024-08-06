@@ -98,6 +98,16 @@ jobs:
         run: mkdir $HOME/builds
         shell: bash
 
+      - name: Debugging
+        run: |
+          echo "trigger_branch_main: ${{ steps.set_env_vars.outputs.trigger_branch_main }}"
+          if [ "${{ steps.set_env_vars.outputs.trigger_branch_main }}" != "null" ]; then
+            echo "Condition is true"
+          else
+            echo "Condition is false"
+          fi
+        shell: bash
+
   # Build the main branch if it was requested in the trigger
   build_main:
     name: Build Main Branch
