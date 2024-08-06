@@ -42,7 +42,7 @@ jobs:
 
       # cat parsed_json.json for debugging
       - name: Debugging
-        id: debug
+        id: debug_cat
         run: cat parsed_json.json
         shell: pwsh
 
