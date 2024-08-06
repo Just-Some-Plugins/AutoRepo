@@ -43,14 +43,15 @@ jobs:
       # Convert the trigger's JSON to Outputs
       # e.g. `steps.set_env_vars.outputs.trigger_branch_main`
       # e.g. `needs.parse_trigger.outputs.trigger_branch_test`
-      - name: Parse JSON from Comment
+      - name: Parse JSON values to Outputs
         id: set_env_vars
         run: |
-          JSON_BLOCK=$(cat <<'EOF'
-            ${{ github.event.comment.body }}
-          EOF | sed -n '/```json/,/```/p' | sed '1d;$d')
-          echo "$JSON_BLOCK" | jq '.' > parsed_json.json
-        shell: bash
+          $json = Get-Content -Raw -Path parsed_json.json | ConvertFrom-Json
+          foreach ($key in $json.PSObject.Properties.Name) {
+            $value = $json.$key
+            echo "::set-output name=trigger_$key::$value"
+          }
+        shell: pwsh
 
       # The bot auto-accepts collaboration invites every night,
       # but we are doing it here to make sure that the bot has
