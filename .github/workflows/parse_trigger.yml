@@ -48,12 +48,12 @@ jobs:
       - name: Parse JSON values to Environment Variables
         id: set_env_vars
         run: |
-          JSON=$(cat parsed_json.json)
-          for key in $(echo $JSON | jq -r 'keys[]'); do
-            value=$(echo $JSON | jq -r --arg key "$key" '.[$key]')
-            echo "trigger_$key=$value" >> $GITHUB_ENV
-          done
-        shell: bash
+          $json = Get-Content -Raw -Path parsed_json.json | ConvertFrom-Json
+          foreach ($key in $json.PSObject.Properties.Name) {
+            $value = $json.$key
+            echo "trigger_$key=$value" >> $env:GITHUB_ENV
+          }
+        shell: pwsh
 
       # The bot auto-accepts collaboration invites every night,
       # but we are doing it here to make sure that the bot has
