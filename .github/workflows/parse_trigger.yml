@@ -1,24 +1,22 @@
-# compatible with AutoRepo-Worker 0.0.5 issue#1 comments
+# compatible with AutoRepo-Worker 0.0.6 issue#1 comments
 name: Parse and Process Trigger
 on:
   issue_comment:
-    types: [created]
-    secrets:
-      BOT_INVITE_ACCEPT_TOKEN:
-        description: 'A classic PAT with the full `repo` scope'
-        required: false
-      BOT_READ_REPOS_TOKEN:
-        description: 'A classic PAT with the full `repo` scope'
-        required: false
+    types:
+      - created
+
 
 jobs:
   parse_trigger:
     name: Parse Trigger
-    runs-on: windows-latest
-
+    runs-on: ubuntu-latest
     outputs:
+      trigger_code_repo: ${{ steps.set_env_vars.outputs.trigger_code_repo }}
+      trigger_target_name: ${{ steps.set_env_vars.outputs.trigger_target_name }}
       trigger_branch_main: ${{ steps.set_env_vars.outputs.trigger_branch_main }}
       trigger_branch_test: ${{ steps.set_env_vars.outputs.trigger_branch_test }}
+      trigger_branch_main_build: ${{ steps.set_env_vars.outputs.trigger_branch_main_build }}
+      trigger_branch_test_build: ${{ steps.set_env_vars.outputs.trigger_branch_test_build }}
 
     # Only bot comments on the trigger issue (#1)
     if: |
@@ -36,34 +34,43 @@ jobs:
       # Parse the JSON from the comment and save it to `parsed.json`
       - name: Parse JSON from Comment
         id: parse_json
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
-          $commentBody = @"
-          ${{ github.event.comment.body }}
-          "@
-          $lines = $commentBody -split "`n"
+          # Ensure COMMENT_BODY is properly formatted
+          COMMENT_BODY=$(echo -e "$COMMENT_BODY")
 
-          Write-Output "Number of lines in comment body: $($lines.Count)"
-          Write-Output "Lines 13 through 28:"
-          $lines[13..28] | ForEach-Object { Write-Output $_ }
+          # Initialize an empty array
+          lines=()
 
-          $jsonBlock = $lines[13..28] -join "`n"
+          # Iterate over each line in COMMENT_BODY and add it to the array
+          while IFS= read -r line || [[ -n "$line" ]]; do
+            lines+=("$line")
+          done <<< "$COMMENT_BODY"
+          
+          echo "Number of lines in comment body: ${#lines[@]}"
+          echo "Lines 13 through 28:"
+          for i in {13..28}; do
+            echo "${lines[i]}"
+          done
 
-          Write-Output "Extracted JSON Block:"
-          Write-Output $jsonBlock
+          json_block=$(printf "%s\n" "${lines[@]:13:16}")
 
-          if (-not $jsonBlock) {
-            Write-Error "No JSON block found in the comment."
+          echo "Extracted JSON Block:"
+          echo "$json_block"
+
+          if [ -z "$json_block" ]; then
+            echo "No JSON block found in the comment." >&2
             exit 1
-          }
+          fi
 
-          $outputFilePath = "parsed.json"
-          $jsonBlock | Out-File -FilePath $outputFilePath
+          output_file_path="parsed.json"
+          echo "$json_block" > "$output_file_path"
 
-          if (-not (Test-Path $outputFilePath)) {
-            Write-Error "Failed to write JSON block to file."
+          if [ ! -f "$output_file_path" ]; then
+            echo "Failed to write JSON block to file." >&2
             exit 1
-          }
-        shell: pwsh
+          fi
 
       # Convert the trigger's JSON to Outputs
       # e.g. `steps.set_env_vars.outputs.trigger_branch_main`
@@ -72,16 +79,11 @@ jobs:
         id: set_env_vars
         run: |
           json=$(cat parsed.json)
+          echo $json
           for key in $(echo "$json" | jq -r 'keys[]'); do
             value=$(echo "$json" | jq -r --arg key "$key" '.[$key]')
-            echo "Key: $key, Value: $value"
-            if [ "$key" == "trigger_branch_main" ]; then
-              echo "trigger_branch_main=$value" >> "$GITHUB_OUTPUT"
-            elif [ "$key" == "trigger_branch_test" ]; then
-              echo "trigger_branch_test=$value" >> "$GITHUB_OUTPUT"
-            else
-              echo "trigger_$key=$value" >> "$GITHUB_OUTPUT"
-            fi
+            echo "trigger_$key=$value" >> "$GITHUB_OUTPUT"
+          done
 
       # The bot auto-accepts collaboration invites every night,
       # but we are doing it here to make sure that the bot has
@@ -90,88 +92,52 @@ jobs:
         id: accept_invites
         run: |
           # List all repository invitations
-          $invitations = Invoke-RestMethod -Uri "https://api.github.com/user/repository_invitations" -Headers @{
-            Accept = "application/vnd.github+json"
-            Authorization = "Bearer ${{ secrets.BOT_INVITE_ACCEPT_TOKEN }}"
-            "X-GitHub-Api-Version" = "2022-11-28"
-          }
+          invitations=$(curl -s -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.BOT_INVITE_ACCEPT_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/user/repository_invitations")
 
           # Parse the JSON response to extract invitation IDs
-          $invitation_ids = $invitations.id
+          invitation_ids=$(echo "$invitations" | jq -r '.[].id')
 
           # Accept each invitation by its ID
-          foreach ($id in $invitation_ids) {
-            Invoke-RestMethod -Uri "https://api.github.com/user/repository_invitations/$id" -Method Patch -Headers @{
-              Accept = "application/vnd.github+json"
-              Authorization = "Bearer ${{ secrets.BOT_INVITE_ACCEPT_TOKEN }}"
-              "X-GitHub-Api-Version" = "2022-11-28"
-            }
-          }
-        shell: pwsh
-
-      # Set up .NET for building later
-      - name: Set up .NET
-        id: setup_net
-        uses: actions/setup-dotnet@v4
-        with:
-          # noinspection UndefinedParamsPresent
-          dotnet-version: '8.0.x'
-
-      # Download Dalamud development tools
-      - name: Download Dalamud
-        id: download_dalamud
-        run: |
-          Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/latest.zip -OutFile dalamud.zip
-          Expand-Archive -Force dalamud.zip "$env:AppData\XIVLauncher\addon\Hooks\dev\"
-
-      # Setup folder to build into
-      - name: Create Folder in $HOME
-        id: make_builds_folder
-        run: mkdir $HOME/builds
-        shell: bash
-
-      - name: Debugging
-        id: debug
-        run: |
-          echo "trigger_branch_main: ${{ steps.set_env_vars.outputs.trigger_branch_test }}"
-          if [ "${{ steps.set_env_vars.outputs.trigger_branch_test }}" != "" ]; then
-            echo "Condition is true"
-          else
-            echo "Condition is false"
-          fi
-        shell: bash
+          for id in $invitation_ids; do
+            curl -s -X PATCH \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ secrets.BOT_INVITE_ACCEPT_TOKEN }}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/user/repository_invitations/$id"
+          done
 
   # Build the main branch if it was requested in the trigger
   build_main:
     name: Build Main Branch
-    runs-on: windows-latest
+
     needs: parse_trigger
+    if: ${{ needs.parse_trigger.outputs.trigger_branch_main != 'null' }}
 
-    if: ${{ needs.parse_trigger.outputs.trigger_branch_main != '' }}
-
-    steps:
-      - name: Trigger Plugin Build
-        id: trigger_main_build
-        uses: ./.github/workflows/build_plugin.yml
-        with:
-          branch: ${{ needs.parse_trigger.outputs.trigger_branch_main }}
-          build_config: ${{ needs.parse_trigger.outputs.trigger_branch_main_build }}
+    uses: ./.github/workflows/build_plugin.yml
+    with:
+      target_name: ${{ needs.parse_trigger.outputs.trigger_target_name }}
+      repo: ${{ needs.parse_trigger.outputs.trigger_code_repo }}
+      branch: ${{ needs.parse_trigger.outputs.trigger_branch_main }}
+      build_config: ${{ needs.parse_trigger.outputs.trigger_branch_main_build }}
+    secrets: inherit
 
   # Build the test branch if it was requested in the trigger
   build_test:
     name: Build Test Branch
-    runs-on: windows-latest
+
     needs: parse_trigger
+    if: ${{ needs.parse_trigger.outputs.trigger_branch_test != 'null' }}
 
-    if: ${{ needs.parse_trigger.outputs.trigger_branch_test != '' }}
-
-    steps:
-      - name: Trigger Plugin Build
-        id: trigger_test_build
-        uses: ./.github/workflows/build_plugin.yml
-        with:
-          branch: ${{ needs.parse_trigger.outputs.trigger_branch_test }}
-          build_config: ${{ needs.parse_trigger.outputs.trigger_branch_test_build }}
+    uses: ./.github/workflows/build_plugin.yml
+    with:
+      target_name: ${{ needs.parse_trigger.outputs.trigger_target_name }}
+      repo: ${{ needs.parse_trigger.outputs.trigger_code_repo }}
+      branch: ${{ needs.parse_trigger.outputs.trigger_branch_test }}
+      build_config: ${{ needs.parse_trigger.outputs.trigger_branch_test_build }}
+    secrets: inherit
 
   # todo: add job to build or update repository json
   # todo: add job to contribute the plugins to AutoRepo-Web
