@@ -56,8 +56,8 @@ jobs:
       - name: Create Output Folder
         id: make_output_folder
         run: |
-          $dev_folder = "${{ runner.temp }}\${{ inputs.assembly_name }}"
-          mkdir -p $dev_folder
+          dev_folder="${{ runner.temp }}/\${{ inputs.assembly_name }}"
+          mkdir -p "$dev_folder"
           echo "DalamudDevPlugins=$dev_folder" >> $GITHUB_ENV
         shell: bash
 
