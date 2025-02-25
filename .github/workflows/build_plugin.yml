@@ -77,25 +77,16 @@ jobs:
           branch: release # Replace with 'stg'
 
       # todo: find csproj file and extract the version from it
-      # Include the plugin's dependencies
-      - name: Restore Dependencies
-        id: dotnet_restore
-        needs: setup_dalamud
-        run: |
-          cd repo
-          dotnet restore
-        shell: bash
-        # Ensure this step waits for the 'Set up .NET' step to complete
 
       # Build the plugin
       - name: Build
-        needs: dotnet_restore
+        id: dotnet_build
         run: |
           cd .\repo\
           dir
           $build_config = "${{ inputs.build_config }}"
           $assembly_name = "${{ inputs.assembly_name }}"
-          dotnet build --configuration $build_config --p:AssemblyName="$assembly_name" --no-restore
+          dotnet build --configuration $build_config --p:AssemblyName="$assembly_name"
         shell: pwsh
 
       # todo: add zipping and moving to $HOME/builds
