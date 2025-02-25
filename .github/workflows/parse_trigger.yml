@@ -137,7 +137,7 @@ jobs:
 
   # Build the main branch if it was requested in the trigger
   build_main:
-    name: Build Main Branch
+    name: Main
     needs: parse_trigger
     if: ${{ needs.parse_trigger.outputs.trigger_branch_main != 'null' }}
 
@@ -151,7 +151,7 @@ jobs:
 
   # Build the test branch if it was requested in the trigger
   build_test:
-    name: Build Test Branch
+    name: Test
     needs: parse_trigger
     if: ${{ needs.parse_trigger.outputs.trigger_branch_test != 'null' }}
 
