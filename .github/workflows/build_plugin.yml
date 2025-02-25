@@ -73,9 +73,9 @@ jobs:
       - name: Build
         run: |
           cd repo
-          build_config="${{ inputs.build_config }}"
-          assembly_name="${{ inputs.assembly_name }}"
-          echo "AssemblyName: $assembly_name"
+          $build_config = "${{ inputs.build_config }}"
+          $assembly_name = "${{ inputs.assembly_name }}"
           dotnet build --configuration $build_config --p:AssemblyName="$assembly_name" --no-restore
+        shell: pwsh
 
       # todo: add zipping and moving to $HOME/builds

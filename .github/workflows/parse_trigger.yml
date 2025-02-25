@@ -72,6 +72,7 @@ jobs:
             echo "Failed to write JSON block to file." >&2
             exit 1
           fi
+        shell: bash
 
       # Convert the trigger's JSON to Outputs
       # e.g. `steps.set_env_vars.outputs.trigger_branch_main`
@@ -85,6 +86,7 @@ jobs:
             value=$(echo "$json" | jq -r --arg key "$key" '.[$key]')
             echo "trigger_$key=$value" >> "$GITHUB_OUTPUT"
           done
+        shell: bash
 
       # Sanitize the target name
       - name: Sanitize Target Name
@@ -93,6 +95,7 @@ jobs:
           target_name="${{ steps.set_env_vars.outputs.trigger_target_name }}"
           sanitized_target_name=$(echo "$target_name" | tr -cd '[:alnum:]')
           echo "trigger_assembly_name=$sanitized_target_name" >> "$GITHUB_OUTPUT"
+        shell: bash
 
       # The bot auto-accepts collaboration invites every night,
       # but we are doing it here to make sure that the bot has
@@ -117,6 +120,7 @@ jobs:
               -H "X-GitHub-Api-Version: 2022-11-28" \
               "https://api.github.com/user/repository_invitations/$id"
           done
+        shell: bash
 
   # Build the main branch if it was requested in the trigger
   build_main:
