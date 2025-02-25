@@ -101,7 +101,7 @@ jobs:
           echo "DLL Path Line: $dll_path_line"
           dll_full_path=$(echo "$dll_path_line" | awk -F' -> ' '{print $2}')
           dll_path=$(dirname "${dll_full_path}")
-          echo "DLL_PATH=$dll_path"
+          echo "DLL Path=$dll_path"
           echo "DLL_PATH=$dll_path" >> $GITHUB_ENV
 
       # todo: add zipping and moving to $HOME/builds
