@@ -30,6 +30,8 @@ on:
 jobs:
   build_plugin:
     runs-on: ubuntu-latest
+    env:
+      DALAMUD_HOME: $HOME/.xlcore/dalamud/Hooks/dev
 
     steps:
       # Debug Inputs
@@ -51,11 +53,20 @@ jobs:
           submodules: recursive
           path: repo
 
+      # Download Dalamud development tools
+      - name: Download Dalamud
+        id: download_dalamud
+        run: |
+          curl -L https://goatcorp.github.io/dalamud-distrib/latest.zip -o dalamud.zip
+          mkdir -p ${{ env.DALAMUD_HOME }}
+          unzip -o dalamud.zip -d ${{ env.DALAMUD_HOME }}
+          echo "DALAMUD_HOME=${{ env.DALAMUD_HOME }}" >> $GITHUB_ENV
+
       # Setup folder to place builds into
       - name: Create Output Folder
         id: make_output_folder
         run: |
-          dev_folder="${{ runner.temp }}\${{ inputs.assembly_name }}"
+          dev_folder="${{ runner.temp }}/${{ inputs.assembly_name }}"
           mkdir -p "$dev_folder"
           echo "DalamudDevPlugins=$dev_folder" >> $GITHUB_ENV
 
@@ -66,12 +77,6 @@ jobs:
         with:
           # noinspection UndefinedParamsPresent
           dotnet-version: '8.0.x'
-
-      # Download Dalamud development tools
-      - name: Download Dalamud
-        uses: Blooym/setup-dalamud@v1
-        with:
-          branch: release # Replace with 'stg'
 
       # todo: find csproj file and extract the version from it
 
@@ -88,6 +93,5 @@ jobs:
           build_config="${{ inputs.build_config }}"
           assembly_name="${{ inputs.assembly_name }}"
           echo "AssemblyName: $assembly_name"
-          dotnet build --configuration $build_config --p:AssemblyName="$assembly_name" --no-restore
 
       # todo: add zipping and moving to $HOME/builds
