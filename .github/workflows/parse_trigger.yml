@@ -16,6 +16,10 @@ jobs:
     name: Parse Trigger
     runs-on: windows-latest
 
+    outputs:
+      trigger_branch_main: ${{ steps.set_env_vars.outputs.trigger_branch_main }}
+      trigger_branch_test: ${{ steps.set_env_vars.outputs.trigger_branch_test }}
+
     # Only bot comments on the trigger issue (#1)
     if: |
       github.event.comment.user.login == 'just-some-bot' &&
@@ -70,7 +74,13 @@ jobs:
           $json = Get-Content -Raw -Path parsed.json | ConvertFrom-Json
           foreach ($key in $json.PSObject.Properties.Name) {
             $value = $json.$key
-            echo "trigger_$key=$value" >> "$GITHUB_OUTPUT"
+            if ($key -eq 'trigger_branch_main') {
+              echo "trigger_branch_main=$value" >> "$GITHUB_OUTPUT"
+            } elseif ($key -eq 'trigger_branch_test') {
+              echo "trigger_branch_test=$value" >> "$GITHUB_OUTPUT"
+            } else {
+              echo "trigger_$key=$value" >> "$GITHUB_OUTPUT"
+            }
           }
         shell: pwsh
 
@@ -105,6 +115,7 @@ jobs:
         id: setup_net
         uses: actions/setup-dotnet@v4
         with:
+          # noinspection UndefinedParamsPresent
           dotnet-version: '8.0.x'
 
       # Download Dalamud development tools
