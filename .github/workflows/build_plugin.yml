@@ -2,6 +2,14 @@ name: Build Plugin
 on:
   workflow_call:
     inputs:
+      target_name:
+        description: 'The desired name to build to'
+        required: true
+        type: string
+      assembly_name:
+        description: 'The safe name to build to'
+        required: true
+        type: string
       repo:
         description: 'The repository to trigger the build for'
         required: true
@@ -14,10 +22,6 @@ on:
         description: 'The build configuration to use'
         required: true
         type: string
-      target_name:
-        description: 'The desired name to build to'
-        required: true
-        type: string
     secrets:
       BOT_READ_REPOS_TOKEN:
         description: 'A classic PAT with the full `repo` scope'
@@ -25,7 +29,7 @@ on:
 
 jobs:
   build_plugin:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       # Checkout the specific branch of the triggering repository
@@ -70,7 +74,8 @@ jobs:
         run: |
           cd repo
           build_config="${{ inputs.build_config }}"
-          target_name="${{ inputs.target_name }}"
-          dotnet build --configuration $build_config --p:AssemblyName="$target_name" --no-restore
+          assembly_name="${{ inputs.assembly_name }}"
+          echo "AssemblyName: $assembly_name"
+          dotnet build --configuration $build_config --p:AssemblyName="$assembly_name" --no-restore
 
       # todo: add zipping and moving to $HOME/builds
