@@ -26,6 +26,8 @@ on:
 jobs:
   build_plugin:
     runs-on: ubuntu-latest
+    env:
+      DALAMUD_HOME: $HOME/.xlcore/dalamud/Hooks/dev
 
     steps:
       # Setup folder to place builds into
@@ -46,8 +48,8 @@ jobs:
         id: download_dalamud
         run: |
           curl -L https://goatcorp.github.io/dalamud-distrib/latest.zip -o dalamud.zip
-          mkdir -p $HOME/.xlcore/dalamud/Hooks/dev/
-          unzip -o dalamud.zip -d $HOME/.xlcore/dalamud/Hooks/dev/
+          mkdir -p ${{ env.DALAMUD_HOME }}
+          unzip -o dalamud.zip -d ${{ env.DALAMUD_HOME }}
 
       # Checkout the specific branch of the triggering repository
       - name: Checkout Repository
@@ -60,7 +62,7 @@ jobs:
           path: repo
 
       # todo: find csproj file and extract the version from it
-      
+
       # Include the plugin's dependencies
       - name: Restore Dependencies
         run: |
