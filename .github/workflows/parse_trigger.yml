@@ -70,7 +70,7 @@ jobs:
           $json = Get-Content -Raw -Path parsed.json | ConvertFrom-Json
           foreach ($key in $json.PSObject.Properties.Name) {
             $value = $json.$key
-            echo "::set-output name=trigger_$key::$value"
+            echo "trigger_$key=$value" >> "$GITHUB_OUTPUT"
           }
         shell: pwsh
 
