@@ -52,6 +52,13 @@ jobs:
           submodules: recursive
           path: repo
 
+      # Download Dalamud development tools
+      - name: Download Dalamud
+        id: setup_dalamud
+        uses: Blooym/setup-dalamud@v1
+        with:
+          branch: release # Replace with 'stg'
+
       # Setup folder to place builds into
       - name: Create Output Folder
         id: make_output_folder
@@ -68,13 +75,6 @@ jobs:
         with:
           # noinspection UndefinedParamsPresent
           dotnet-version: '8.0.x'
-
-      # Download Dalamud development tools
-      - name: Download Dalamud
-        id: setup_dalamud
-        uses: Blooym/setup-dalamud@v1
-        with:
-          branch: release # Replace with 'stg'
 
       # todo: find csproj file and extract the version from it
 
