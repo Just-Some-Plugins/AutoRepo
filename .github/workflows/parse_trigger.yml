@@ -121,13 +121,13 @@ jobs:
           echo "trigger_code_repo=${{ needs.parse_trigger.outputs.trigger_code_repo }}"
           echo "trigger_target_name=${{ needs.parse_trigger.outputs.trigger_target_name }}"
           echo "trigger_branch_main=${{ needs.parse_trigger.outputs.trigger_branch_main }}"
-          if [ "${{ needs.parse_trigger.outputs.trigger_branch_main }}" != "" ]; then
+          if [ "${{ needs.parse_trigger.outputs.trigger_branch_main }}" != "null" ]; then
             echo "  > build condition true"
           else
             echo "  > build condition false"
           fi
           echo "trigger_branch_test=${{ needs.parse_trigger.outputs.trigger_branch_test }}"
-          if [ "${{ needs.parse_trigger.outputs.trigger_branch_test }}" != "" ]; then
+          if [ "${{ needs.parse_trigger.outputs.trigger_branch_test }}" != "null" ]; then
             echo "  > build condition true"
           else
             echo "  > build condition false"
