@@ -119,6 +119,28 @@ jobs:
               "https://api.github.com/user/repository_invitations/$id"
           done
         shell: bash
+      
+      # Debug Outputs for Build `ifs`
+      - name: Debug Outputs
+        run: |
+          echo "trigger_code_repo=${{ steps.set_env_vars.outputs.trigger_code_repo }}"
+          echo "trigger_target_name=${{ steps.set_env_vars.outputs.trigger_target_name }}"
+          echo "trigger_assembly_name=${{ steps.set_env_vars.outputs.trigger_assembly_name }}"
+          echo "trigger_branch_main=${{ steps.set_env_vars.outputs.trigger_branch_main }}"
+          if [ "${{ needs.parse_trigger.outputs.trigger_branch_main }}" != "null" ]; then
+            echo "  >condition true"
+          else
+            echo "  >condition false"
+          fi
+          echo "trigger_branch_test=${{ steps.set_env_vars.outputs.trigger_branch_test }}"
+          if [ "${{ needs.parse_trigger.outputs.trigger_branch_test }}" != "null" ]; then
+            echo "  >condition true"
+          else
+            echo "  >condition false"
+          fi
+          echo "trigger_branch_main_build=${{ steps.set_env_vars.outputs.trigger_branch_main_build }}"
+          echo "trigger_branch_test_build=${{ steps.set_env_vars.outputs.trigger_branch_test_build }}"
+        shell: bash
 
   # Build the main branch if it was requested in the trigger
   build_main:
