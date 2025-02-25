@@ -9,11 +9,11 @@ on:
 jobs:
   parse_trigger:
     name: Parse Trigger
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     outputs:
       trigger_code_repo: ${{ steps.set_env_vars.outputs.trigger_code_repo }}
       trigger_target_name: ${{ steps.set_env_vars.outputs.trigger_target_name }}
-      trigger_assembly_name: ${{ steps.set_env_vars.outputs.trigger_assembly_name }}
+      trigger_assembly_name: ${{ steps.sanitize_target_name.outputs.trigger_assembly_name }}
       trigger_branch_main: ${{ steps.set_env_vars.outputs.trigger_branch_main }}
       trigger_branch_test: ${{ steps.set_env_vars.outputs.trigger_branch_test }}
       trigger_branch_main_build: ${{ steps.set_env_vars.outputs.trigger_branch_main_build }}
@@ -72,7 +72,6 @@ jobs:
             echo "Failed to write JSON block to file." >&2
             exit 1
           fi
-        shell: bash
 
       # Convert the trigger's JSON to Outputs
       # e.g. `steps.set_env_vars.outputs.trigger_branch_main`
@@ -80,20 +79,22 @@ jobs:
       - name: Parse JSON values to Outputs, Sanitize Target_Name
         id: set_env_vars
         run: |
-          $json = Get-Content -Raw -Path parsed.json | ConvertFrom-Json
-          foreach ($key in $json.PSObject.Properties.Name) {
-            $value = $json.$key
+          json=$(cat parsed.json)
+          echo $json
+          for key in $(echo "$json" | jq -r 'keys[]'); do
+            value=$(echo "$json" | jq -r --arg key "$key" '.[$key]')
+            echo "trigger_$key=$value"
+            echo "trigger_$key=$value" >> "$GITHUB_OUTPUT"
+          done
 
-            if ($key -eq "target_name") {
-              $sanitized_target_name = -join ($value -replace '[^a-zA-Z0-9]', '')
-              Write-Output "trigger_assembly_name=$sanitized_target_name"
-              Add-Content -Path $env:GITHUB_OUTPUT -Value "trigger_assembly_name=$sanitized_target_name"
-            }
-
-            Write-Output "trigger_$key=$value"
-            Add-Content -Path $env:GITHUB_OUTPUT -Value "trigger_$key=$value"
-          }
-        shell: pwsh
+      # Sanitize the target name
+      - name: Sanitize Target Name
+        id: sanitize_target_name
+        run: |
+          target_name="${{ steps.set_env_vars.outputs.trigger_target_name }}"
+          sanitized_target_name=$(echo "$target_name" | tr -cd '[:alnum:]')
+          echo "trigger_assembly_name=$sanitized_target_name"
+          echo "trigger_assembly_name=$sanitized_target_name" >> "$GITHUB_OUTPUT"
 
       # The bot auto-accepts collaboration invites every night,
       # but we are doing it here to make sure that the bot has
@@ -117,13 +118,11 @@ jobs:
               -H "Authorization: Bearer ${{ secrets.BOT_INVITE_ACCEPT_TOKEN }}" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
               "https://api.github.com/user/repository_invitations/$id"
-          done
-        shell: bash
+          done  # Debug Outputs for Build `ifs`
 
-  # Debug Outputs for Build `ifs`
   debug:
     name: Debug
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     needs: parse_trigger
       
     steps:
@@ -146,14 +145,13 @@ jobs:
           fi
           echo "trigger_branch_main_build=${{ needs.parse_trigger.outputs.trigger_branch_main_build }}"
           echo "trigger_branch_test_build=${{ needs.parse_trigger.outputs.trigger_branch_test_build }}"
-        shell: bash
 
   # Build the main branch if it was requested in the trigger
   build_main:
-    name: Main Branch
+    name: Build Main Branch
 
     needs: parse_trigger
-    if: ${{ needs.parse_trigger.outputs.trigger_branch_main != '' }}
+    if: ${{ needs.parse_trigger.outputs.trigger_branch_main != 'null' }}
 
     uses: ./.github/workflows/build_plugin.yml
     with:
@@ -166,10 +164,10 @@ jobs:
 
   # Build the test branch if it was requested in the trigger
   build_test:
-    name: Test Branch
+    name: Build Test Branch
 
     needs: parse_trigger
-    if: ${{ needs.parse_trigger.outputs.trigger_branch_test != '' }}
+    if: ${{ needs.parse_trigger.outputs.trigger_branch_test != 'null' }}
 
     uses: ./.github/workflows/build_plugin.yml
     with:

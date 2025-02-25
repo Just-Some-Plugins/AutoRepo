@@ -29,7 +29,7 @@ on:
 
 jobs:
   build_plugin:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       # Debug Inputs
@@ -40,7 +40,6 @@ jobs:
           echo "repo=${{ inputs.repo }}"
           echo "branch=${{ inputs.branch }}"
           echo "build_config=${{ inputs.build_config }}"
-        shell: bash
 
       # Checkout the specific branch of the triggering repository
       - name: Checkout Repository
@@ -52,13 +51,6 @@ jobs:
           submodules: recursive
           path: repo
 
-      # Download Dalamud development tools
-      - name: Download Dalamud
-        id: setup_dalamud
-        uses: Blooym/setup-dalamud@v1
-        with:
-          branch: release # Replace with 'stg'
-
       # Setup folder to place builds into
       - name: Create Output Folder
         id: make_output_folder
@@ -66,7 +58,6 @@ jobs:
           dev_folder="${{ runner.temp }}\${{ inputs.assembly_name }}"
           mkdir -p "$dev_folder"
           echo "DalamudDevPlugins=$dev_folder" >> $GITHUB_ENV
-        shell: bash
 
       # Set up .NET
       - name: Set up .NET
@@ -76,18 +67,27 @@ jobs:
           # noinspection UndefinedParamsPresent
           dotnet-version: '8.0.x'
 
+      # Download Dalamud development tools
+      - name: Download Dalamud
+        uses: Blooym/setup-dalamud@v1
+        with:
+          branch: release # Replace with 'stg'
+
       # todo: find csproj file and extract the version from it
+
+      # Include the plugin's dependencies
+      - name: Restore Dependencies
+        run: |
+          cd repo
+          dotnet restore
 
       # Build the plugin
       - name: Build
-        id: dotnet_build
         run: |
-          cd .\repo\
-          dir
-          $build_config = "${{ inputs.build_config }}"
-          $assembly_name = "${{ inputs.assembly_name }}"
-          dotnet restore
-          dotnet build --configuration $build_config --no-restore
-        shell: pwsh
+          cd repo
+          build_config="${{ inputs.build_config }}"
+          assembly_name="${{ inputs.assembly_name }}"
+          echo "AssemblyName: $assembly_name"
+          dotnet build --configuration $build_config --p:AssemblyName="$assembly_name" --no-restore
 
       # todo: add zipping and moving to $HOME/builds
