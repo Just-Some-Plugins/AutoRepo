@@ -13,7 +13,6 @@ jobs:
     outputs:
       trigger_code_repo: ${{ steps.set_env_vars.outputs.trigger_code_repo }}
       trigger_target_name: ${{ steps.set_env_vars.outputs.trigger_target_name }}
-      trigger_assembly_name: ${{ steps.sanitize_target_name.outputs.trigger_assembly_name }}
       trigger_branch_main: ${{ steps.set_env_vars.outputs.trigger_branch_main }}
       trigger_branch_test: ${{ steps.set_env_vars.outputs.trigger_branch_test }}
       trigger_branch_main_build: ${{ steps.set_env_vars.outputs.trigger_branch_main_build }}
@@ -87,15 +86,6 @@ jobs:
             echo "trigger_$key=$value" >> "$GITHUB_OUTPUT"
           done
 
-      # Sanitize the target name
-      - name: Sanitize Target Name
-        id: sanitize_target_name
-        run: |
-          target_name="${{ steps.set_env_vars.outputs.trigger_target_name }}"
-          sanitized_target_name=$(echo "$target_name" | tr -cd '[:alnum:]')
-          echo "trigger_assembly_name=$sanitized_target_name"
-          echo "trigger_assembly_name=$sanitized_target_name" >> "$GITHUB_OUTPUT"
-
       # The bot auto-accepts collaboration invites every night,
       # but we are doing it here to make sure that the bot has
       # access to the repo
@@ -130,7 +120,6 @@ jobs:
         run: |
           echo "trigger_code_repo=${{ needs.parse_trigger.outputs.trigger_code_repo }}"
           echo "trigger_target_name=${{ needs.parse_trigger.outputs.trigger_target_name }}"
-          echo "trigger_assembly_name=${{ needs.parse_trigger.outputs.trigger_assembly_name }}"
           echo "trigger_branch_main=${{ needs.parse_trigger.outputs.trigger_branch_main }}"
           if [ "${{ needs.parse_trigger.outputs.trigger_branch_main }}" != "" ]; then
             echo "  > build condition true"
@@ -155,7 +144,6 @@ jobs:
     uses: ./.github/workflows/build_plugin.yml
     with:
       target_name: ${{ needs.parse_trigger.outputs.trigger_target_name }}
-      assembly_name: ${{ needs.parse_trigger.outputs.trigger_assembly_name }}
       repo: ${{ needs.parse_trigger.outputs.trigger_code_repo }}
       branch: ${{ needs.parse_trigger.outputs.trigger_branch_main }}
       build_config: ${{ needs.parse_trigger.outputs.trigger_branch_main_build }}
@@ -170,7 +158,6 @@ jobs:
     uses: ./.github/workflows/build_plugin.yml
     with:
       target_name: ${{ needs.parse_trigger.outputs.trigger_target_name }}
-      assembly_name: ${{ needs.parse_trigger.outputs.trigger_assembly_name }}
       repo: ${{ needs.parse_trigger.outputs.trigger_code_repo }}
       branch: ${{ needs.parse_trigger.outputs.trigger_branch_test }}
       build_config: ${{ needs.parse_trigger.outputs.trigger_branch_test_build }}
