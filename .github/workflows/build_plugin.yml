@@ -76,6 +76,7 @@ jobs:
 
       # Build the plugin
       - name: Build
+        run: |
           cd .\repo\
           dir
           $build_config = "${{ inputs.build_config }}"
