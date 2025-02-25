@@ -87,11 +87,11 @@ jobs:
             if ($key -eq "target_name") {
               $sanitized_target_name = -join ($value -replace '[^a-zA-Z0-9]', '')
               Write-Output "trigger_assembly_name=$sanitized_target_name"
-              echo "trigger_assembly_name=$sanitized_target_name" >> "$GITHUB_OUTPUT"
+              Add-Content -Path $env:GITHUB_OUTPUT -Value "trigger_assembly_name=$sanitized_target_name"
             }
 
             Write-Output "trigger_$key=$value"
-            echo "trigger_$key=$value" >> "$GITHUB_OUTPUT"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "trigger_$key=$value"
           }
         shell: pwsh
 
