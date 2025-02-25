@@ -1,0 +1,17 @@
+{
+  "inputs": {
+    "repo": "zbee/WrathCombo",
+    "branch": "reviews",
+    "build_config": "Release",
+    "target_name": "Wrath Combo (zbee test) (reviews)"
+  },
+  "issue": {
+    "number": 1
+  },
+  "comment": {
+    "user": {
+      "login": "just-some-bot"
+    },
+    "body": "Build triggered by **_Zbee_**'s key for [zbee/WrathCombo:reviews](https://github.com/zbee/WrathCombo/tree/reviews).\n\n- **Target Name**: `Wrath Combo (zbee test) (reviews)`\n- **Target Repository**: `zbee`\n- **Main Branch**: `reviews` (with `Release` config)\n- **Test Branch**: `<null>`\n\n\n\n<details><summary>Raw Trigger Data</summary>\n\n\n```json\n{\n    \"worker_version\": \"0.0.6 yotis\",\n    \"key_owner\": \"Zbee\",\n    \"target_repo\": \"zbee\",\n    \"target_name\": \"Wrath Combo (zbee test) (reviews)\",\n    \"branch_main\": \"reviews\",\n    \"branch_main_build\": \"Release\",\n    \"branch_test\": null,\n    \"branch_test_build\": \"Debug\",\n    \"code_repo\": \"zbee/WrathCombo\",\n    \"code_private\": false,\n    \"code_owner\": \"zbee\",\n    \"code_url\": \"https://github.com/zbee/WrathCombo\",\n    \"code_branch\": \"reviews\",\n    \"code_icon\": null\n}\n```\n\n</details>\n\n> (worker version: <kbd>0.0.6 yotis</kbd>)\n"
+  }
+}
