@@ -96,7 +96,7 @@ jobs:
       - name: Extract DLL Path
         id: extract_dll_path
         run: |
-          build_output=$(grep -E '->.*\.dll' build_output.txt | tail -n 1)
+          build_output=$(grep -E '\-\>.*\.dll' build_output.txt | tail -n 1)
           echo "DLL Path Line: $build_output"
 
       # todo: add zipping and moving to $HOME/builds
