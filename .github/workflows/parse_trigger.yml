@@ -80,21 +80,20 @@ jobs:
       - name: Parse JSON values to Outputs, Sanitize Target_Name
         id: set_env_vars
         run: |
-          json=$(cat parsed.json)
-          echo $json
-          for key in $(echo "$json" | jq -r 'keys[]'); do
-            value=$(echo "$json" | jq -r --arg key "$key" '.[$key]')
+          $json = Get-Content -Raw -Path parsed.json | ConvertFrom-Json
+          foreach ($key in $json.PSObject.Properties.Name) {
+            $value = $json.$key
 
-            if [ "$key" == "target_name" ]; then
-              sanitized_target_name=$(echo "$value" | tr -cd '[:alnum:]')
-              echo "trigger_assembly_name=$sanitized_target_name"
-              echo "trigger_assembly_name=$sanitized_target_name" >> $GITHUB_OUTPUT
-            fi
+            if ($key -eq "target_name") {
+              $sanitized_target_name = -join ($value -replace '[^a-zA-Z0-9]', '')
+              Write-Output "trigger_assembly_name=$sanitized_target_name"
+              echo "trigger_assembly_name=$sanitized_target_name" >> "$GITHUB_OUTPUT"
+            }
 
-            echo "trigger_$key=$value"
-            echo "trigger_$key=$value" >> $GITHUB_OUTPUT
-          done
-        shell: bash
+            Write-Output "trigger_$key=$value"
+            echo "trigger_$key=$value" >> "$GITHUB_OUTPUT"
+          }
+        shell: pwsh
 
       # The bot auto-accepts collaboration invites every night,
       # but we are doing it here to make sure that the bot has
