@@ -84,7 +84,9 @@ jobs:
           echo $json
           for key in $(echo "$json" | jq -r 'keys[]'); do
             value=$(echo "$json" | jq -r --arg key "$key" '.[$key]')
-            echo "trigger_$key=$value" >> "$GITHUB_OUTPUT"
+            echo "trigger_$key=$value"
+            echo "trigger_$key=$value" >> $GITHUB_ENV
+            echo "trigger_$key=$value" >> $GITHUB_OUTPUT
           done
         shell: bash
 
@@ -92,8 +94,9 @@ jobs:
       - name: Sanitize Target Name
         id: sanitize_target_name
         run: |
-          target_name="${{ steps.set_env_vars.outputs.trigger_target_name }}"
+          target_name="${{ env.trigger_target_name }}"
           sanitized_target_name=$(echo "$target_name" | tr -cd '[:alnum:]')
+          echo "trigger_assembly_name=$sanitized_target_name"
           echo "trigger_assembly_name=$sanitized_target_name" >> "$GITHUB_OUTPUT"
         shell: bash
 
@@ -124,7 +127,7 @@ jobs:
 
   # Build the main branch if it was requested in the trigger
   build_main:
-    name: Build Main Branch
+    name: Main Branch
 
     needs: parse_trigger
     if: ${{ needs.parse_trigger.outputs.trigger_branch_main != 'null' }}
@@ -140,7 +143,7 @@ jobs:
 
   # Build the test branch if it was requested in the trigger
   build_test:
-    name: Build Test Branch
+    name: Test Branch
 
     needs: parse_trigger
     if: ${{ needs.parse_trigger.outputs.trigger_branch_test != 'null' }}
