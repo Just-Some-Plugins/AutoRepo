@@ -86,7 +86,8 @@ jobs:
           dir
           $build_config = "${{ inputs.build_config }}"
           $assembly_name = "${{ inputs.assembly_name }}"
-          dotnet build --configuration $build_config
+          dotnet restore
+          dotnet build --configuration $build_config --no-restore
         shell: pwsh
 
       # todo: add zipping and moving to $HOME/builds
