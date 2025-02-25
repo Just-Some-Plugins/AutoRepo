@@ -26,8 +26,6 @@ on:
 jobs:
   build_plugin:
     runs-on: ubuntu-latest
-    env:
-      DALAMUD_HOME: $HOME/.xlcore/dalamud/Hooks/dev
 
     steps:
       # Checkout the specific branch of the triggering repository
@@ -55,12 +53,9 @@ jobs:
 
       # Download Dalamud development tools
       - name: Download Dalamud
-        id: download_dalamud
-        run: |
-          curl -L https://goatcorp.github.io/dalamud-distrib/latest.zip -o dalamud.zip
-          mkdir -p ${{ env.DALAMUD_HOME }}
-          unzip -o dalamud.zip -d ${{ env.DALAMUD_HOME }}
-          echo "DALAMUD_HOME=${{ env.DALAMUD_HOME }}" >> $GITHUB_ENV
+        uses: Blooym/setup-dalamud@v1
+        with:
+          branch: release # Replace with 'stg'
 
       # todo: find csproj file and extract the version from it
 
