@@ -92,6 +92,19 @@ jobs:
           dotnet restore
           dotnet build --configuration $build_config | tee build_output.txt
 
+      # Error if build outright failed, or DLL could not be found
+      - name: Check for Build Failure
+        run: |
+          cd repo
+          if grep -q 'Build FAILED.' build_output.txt; then
+            echo "Build failed."
+            exit 1
+          fi
+          if ! grep -q '.*\.dll' build_output.txt; then
+            echo "No DLL found in build output."
+            exit 1
+          fi
+
       # Extract the final .dll
       - name: Extract DLL Path
         id: extract_dll_path
