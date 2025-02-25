@@ -71,19 +71,17 @@ jobs:
       - name: Parse JSON values to Outputs
         id: set_env_vars
         run: |
-          $json = Get-Content -Raw -Path parsed.json | ConvertFrom-Json
-          foreach ($key in $json.PSObject.Properties.Name) {
-            $value = $json.$key
-            Write-Output "Key: `$key`, Value: `$value`"
-            if ($key -eq 'trigger_branch_main') {
+          json=$(cat parsed.json)
+          for key in $(echo "$json" | jq -r 'keys[]'); do
+            value=$(echo "$json" | jq -r --arg key "$key" '.[$key]')
+            echo "Key: $key, Value: $value"
+            if [ "$key" == "trigger_branch_main" ]; then
               echo "trigger_branch_main=$value" >> "$GITHUB_OUTPUT"
-            } elseif ($key -eq 'trigger_branch_test') {
+            elif [ "$key" == "trigger_branch_test" ]; then
               echo "trigger_branch_test=$value" >> "$GITHUB_OUTPUT"
-            } else {
+            else
               echo "trigger_$key=$value" >> "$GITHUB_OUTPUT"
-            }
-          }
-        shell: pwsh
+            fi
 
       # The bot auto-accepts collaboration invites every night,
       # but we are doing it here to make sure that the bot has
