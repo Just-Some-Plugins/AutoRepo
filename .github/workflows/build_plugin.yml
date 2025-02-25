@@ -97,9 +97,11 @@ jobs:
         id: extract_dll_path
         run: |
           cd repo
-          build_output=$(grep -E '.*\.dll' build_output.txt | tail -n 1)
-          echo "DLL Path Line: $build_output"
-          dll_path=$(echo "$build_output" | awk -F' -> ' '{print $2}')
+          dll_path_line=$(grep -E '.*\.dll' build_output.txt | tail -n 1)
+          echo "DLL Path Line: $dll_path_line"
+          dll_full_path=$(echo "$dll_path_line" | awk -F' -> ' '{print $2}')
+          dll_path=$(dirname "${dll_full_path}")
           echo "DLL_PATH=$dll_path"
+          echo "DLL_PATH=$dll_path" >> $GITHUB_ENV
 
       # todo: add zipping and moving to $HOME/builds
