@@ -2,6 +2,10 @@ name: Build Plugin
 on:
   workflow_call:
     inputs:
+      repo:
+        description: 'The repository to trigger the build for'
+        required: true
+        type: string
       branch:
         description: 'The branch to build'
         required: true
@@ -10,34 +14,65 @@ on:
         description: 'The build configuration to use'
         required: true
         type: string
-    secrets: inherit
+      target_name:
+        description: 'The desired name to build to'
+        required: true
+        type: string
+    secrets:
+      BOT_READ_REPOS_TOKEN:
+        description: 'A classic PAT with the full `repo` scope'
+        required: true
 
 jobs:
   build_plugin:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
+      # Setup folder to place builds into
+      - name: Create Folder in $HOME
+        id: make_builds_folder
+        run: mkdir $HOME/builds
+
+      # Set up .NET
+      - name: Set up .NET
+        id: setup_net
+        uses: actions/setup-dotnet@v4
+        with:
+          # noinspection UndefinedParamsPresent
+          dotnet-version: '8.0.x'
+
+      # Download Dalamud development tools
+      - name: Download Dalamud
+        id: download_dalamud
+        run: |
+          curl -L https://goatcorp.github.io/dalamud-distrib/latest.zip -o dalamud.zip
+          mkdir -p $HOME/.xlcore/dalamud/Hooks/dev/
+          unzip -o dalamud.zip -d $HOME/.xlcore/dalamud/Hooks/dev/
+
       # Checkout the specific branch of the triggering repository
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.trigger_code_repo }}
+          repository: ${{ inputs.repo }}
           ref: ${{ inputs.branch }}
           token: ${{ secrets.BOT_READ_REPOS_TOKEN }}
           submodules: recursive
+          path: repo
 
       # todo: find csproj file and extract the version from it
-
+      
       # Include the plugin's dependencies
       - name: Restore Dependencies
-        run: dotnet restore
+        run: |
+          cd repo
+          dotnet restore
 
       # Build the plugin
       - name: Build
         run: |
-          $build_config = '${{ inputs.build_config }}'
-          $target_name = '${{ env.trigger_target_name }}'
-          $ver = '${{ inputs.version }}'
-          dotnet build --configuration $build_config --no-restore $target_name -p:AssemblyVersion=$ver -p:Version=$ver -p:FileVersion=$ver
+          cd repo
+          build_config="${{ inputs.build_config }}"
+          target_name="${{ inputs.target_name }}"
+          dotnet build --configuration $build_config --p:AssemblyName="$target_name" --no-restore
 
       # todo: add zipping and moving to $HOME/builds
