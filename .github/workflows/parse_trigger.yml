@@ -127,16 +127,16 @@ jobs:
           echo "trigger_target_name=${{ steps.set_env_vars.outputs.trigger_target_name }}"
           echo "trigger_assembly_name=${{ steps.set_env_vars.outputs.trigger_assembly_name }}"
           echo "trigger_branch_main=${{ steps.set_env_vars.outputs.trigger_branch_main }}"
-          if [ "${{ needs.parse_trigger.outputs.trigger_branch_main }}" != "null" ]; then
-            echo "  >condition true"
+          if [ "${{ needs.parse_trigger.outputs.trigger_branch_main }}" != "" ]; then
+            echo "  > build condition true"
           else
-            echo "  >condition false"
+            echo "  > build condition false"
           fi
           echo "trigger_branch_test=${{ steps.set_env_vars.outputs.trigger_branch_test }}"
-          if [ "${{ needs.parse_trigger.outputs.trigger_branch_test }}" != "null" ]; then
-            echo "  >condition true"
+          if [ "${{ needs.parse_trigger.outputs.trigger_branch_test }}" != "" ]; then
+            echo "  > build condition true"
           else
-            echo "  >condition false"
+            echo "  > build condition false"
           fi
           echo "trigger_branch_main_build=${{ steps.set_env_vars.outputs.trigger_branch_main_build }}"
           echo "trigger_branch_test_build=${{ steps.set_env_vars.outputs.trigger_branch_test_build }}"
@@ -147,7 +147,7 @@ jobs:
     name: Main Branch
 
     needs: parse_trigger
-    if: ${{ needs.parse_trigger.outputs.trigger_branch_main != 'null' }}
+    if: ${{ needs.parse_trigger.outputs.trigger_branch_main != '' }}
 
     uses: ./.github/workflows/build_plugin.yml
     with:
@@ -163,7 +163,7 @@ jobs:
     name: Test Branch
 
     needs: parse_trigger
-    if: ${{ needs.parse_trigger.outputs.trigger_branch_test != 'null' }}
+    if: ${{ needs.parse_trigger.outputs.trigger_branch_test != '' }}
 
     uses: ./.github/workflows/build_plugin.yml
     with:

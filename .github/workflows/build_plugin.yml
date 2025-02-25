@@ -32,6 +32,16 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      # Debug Inputs
+      - name: Debug Inputs
+        run: |
+          echo "target_name=${{ inputs.target_name }}"
+          echo "assembly_name=${{ inputs.assembly_name }}"
+          echo "repo=${{ inputs.repo }}"
+          echo "branch=${{ inputs.branch }}"
+          echo "build_config=${{ inputs.build_config }}"
+        shell: bash
+
       # Checkout the specific branch of the triggering repository
       - name: Checkout Repository
         uses: actions/checkout@v4
