@@ -71,16 +71,16 @@ jobs:
           echo "DalamudDevPlugins=$dev_folder" >> $GITHUB_ENV
 
       # Set up .NET
-      - name: Set up .NET
-        id: setup_net
+      - name: Set up .NET9
+        id: setup_net9
         uses: actions/setup-dotnet@v4
         with:
           # noinspection UndefinedParamsPresent
           dotnet-version: '9.0.x'
 
       # Set up .NET
-      - name: Set up .NET
-        id: setup_net
+      - name: Set up .NET8
+        id: setup_net8
         uses: actions/setup-dotnet@v4
         with:
           # noinspection UndefinedParamsPresent
