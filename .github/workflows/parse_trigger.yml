@@ -74,6 +74,7 @@ jobs:
           $json = Get-Content -Raw -Path parsed.json | ConvertFrom-Json
           foreach ($key in $json.PSObject.Properties.Name) {
             $value = $json.$key
+            Write-Output "Key: `$key`, Value: `$value`"
             if ($key -eq 'trigger_branch_main') {
               echo "trigger_branch_main=$value" >> "$GITHUB_OUTPUT"
             } elseif ($key -eq 'trigger_branch_test') {
