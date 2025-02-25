@@ -43,9 +43,13 @@ jobs:
           path: repo
 
       # Setup folder to place builds into
-      - name: Create Folder in $HOME
-        id: make_builds_folder
-        run: mkdir $HOME/builds
+      - name: Create Output Folder
+        id: make_output_folder
+        run: |
+          $dev_folder = ${{ runner.temp }}/${{ inputs.assembly_name }}
+          mkdir -p $dev_folder
+          echo "DalamudDevPlugins=$dev_folder" >> $GITHUB_ENV
+        shell: bash
 
       # Set up .NET
       - name: Set up .NET
@@ -68,14 +72,15 @@ jobs:
         run: |
           cd repo
           dotnet restore
+        shell: bash
 
       # Build the plugin
       - name: Build
-        run: |
-          cd repo
+          cd .\repo\
+          dir
           $build_config = "${{ inputs.build_config }}"
           $assembly_name = "${{ inputs.assembly_name }}"
-          dotnet build --configuration $build_config --p:AssemblyName="$assembly_name" --no-restore
+          dotnet build --configuration $build_config --p:AssemblyName="$assembly_name" -o ${{ env.DalamudDevPlugins }} --no-restore
         shell: pwsh
 
       # todo: add zipping and moving to $HOME/builds
