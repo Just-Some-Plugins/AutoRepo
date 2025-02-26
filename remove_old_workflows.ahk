@@ -2,33 +2,39 @@
 
 ; Should be done on this page: https://github.com/Just-Some-Plugins/AutoRepo/actions
 ; Currently set to deleted the 4th workflow in the list
+; If you manually close the "deleted successfully" banner, reload the page, it breaks the Y
 
 ; Press Ctrl+Delete to toggle the script on/off
 
 ; ====== User Configurable Variables ======
 ; Coordinates for clicks
-coordOneX := 1857     ; First click (the 3 dots)
-coordOneY := 604
-coordTwoX := 1766     ; Second click (delete workflow)
-coordTwoY := 667
-coordThreeX := 1177   ; Third click (delete confirmation)
-coordThreeY := 761
+coordOneX := 1854    ; First click (the 3 dots)
+coordOneY := 541
+coordTwoX := 1842    ; Second click (delete workflow)
+coordTwoY := 605
+coordThreeX := 1431  ; Third click (delete confirmation)
+coordThreeY := 764
 
 ; Delay times (in milliseconds)
-shortDelay := 500    ; 0.5 second delay between clicks
-longDelay := 3000    ; 3 second delay before repeating
+shortDelay := 300    ; sub-second delay between clicks
+longDelay := 2500    ; multi-second delay before repeating
+
+; Height of the "deleted successfully" banner
+bannerHeight := 60   ; Height of the banner in pixels
 
 ; ====== Internal Variables ======
+bannerAdded := false ; Flag to track if the banner has been accounted for
+firstLoop := true    ; Flag to track the first loop
 isRunning := false   ; Toggle to track if the script is running
 clickLoop := 0       ; Loop ID for the SetTimer
 
 ; ====== Hotkey Definition ======
-^Delete::ToggleClickSequence()  ; Ctrl+Delete to toggle
+^Delete:: ToggleClickSequence()  ; Ctrl+Delete to toggle
 
 ; ====== Functions ======
 ToggleClickSequence() {
     global isRunning, clickLoop
-    
+
     if (isRunning) {
         ; Stop the loop
         isRunning := false
@@ -48,25 +54,38 @@ PerformClicks() {
     global coordOneX, coordOneY
     global coordTwoX, coordTwoY
     global coordThreeX, coordThreeY
-    global shortDelay, longDelay, clickLoop, isRunning
+    global bannerHeight, bannerAdded
+    global shortDelay, longDelay
+    global clickLoop, isRunning, firstLoop
 
     ; Exit if the script is not running
     if (!isRunning) {
         return
     }
-    
+
+    ; Add the "deleted successfully" banner into the Y coordinates
+    if (!firstLoop && !bannerAdded) {
+        coordOneY += bannerHeight
+        coordTwoY += bannerHeight
+        bannerAdded := true
+    }
+
     ; First click (the 3 dots)
     Click(coordOneX, coordOneY)
     Sleep(shortDelay)
-    
+
     ; Second click (delete workflow)
     Click(coordTwoX, coordTwoY)
     Sleep(shortDelay * 2) ; Longer delay, for the popup to appear
-    
+
     ; Third click (delete confirmation)
     Click(coordThreeX, coordThreeY)
     Sleep(longDelay)
-    
+
+    ; Manage the first-loop flag
+    if (firstLoop) {
+        firstLoop := false
+    }
     ; Set the timer for the next cycle
     clickLoop := SetTimer(PerformClicks, 10)
 }
