@@ -143,9 +143,17 @@ jobs:
       - name: List DLL Path Contents
         id: list_dll_contents
         run: |
-          dll_path="${{ env.DalamudDevPlugins }}"
+          dll_path="${{ env.DLL_PATH }}"
           echo "Listing contents of $dll_path"
           ls -la "$dll_path"
+
+      # Empty the DalamudDevPlugins folder
+      - name: Empty DalamudDevPlugins
+        id: empty_dev_plugins
+        run: |
+          dev_folder="${{ env.DalamudDevPlugins }}"
+          echo "Emptying $dev_folder"
+          rm -rf "$dev_folder"/*
 
       # Compress the plugin
       - name: Compress Plugin
@@ -188,3 +196,12 @@ jobs:
           fi
           
           echo "Plugin package verification passed."
+
+
+      # Delete extra bits in the dev folder
+      - name: Clean up Dev Folder
+        id: clean_up_dev_folder
+        run: |
+          dev_folder="${{ env.DalamudDevPlugins }}"
+          echo "Cleaning up $dev_folder"
+          rm -rf "$dev_folder"/.dotnet
