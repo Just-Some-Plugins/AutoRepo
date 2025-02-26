@@ -1,0 +1,5 @@
+# Exclude specific AutoHotkey file from language statistics
+remove_old_workflows.ahk linguist-vendored
+
+# Include GitHub Action files in language statistics
+.github/workflows/* linguist-language=Shell
