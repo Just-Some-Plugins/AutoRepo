@@ -134,3 +134,53 @@ jobs:
           echo "DLL_PATH=$dll_path" >> $GITHUB_ENV
 
       # todo: add zipping and moving to $HOME/builds
+
+      # List contents of the directory
+      - name: List DLL Path Contents
+        id: list_dll_contents
+        run: |
+          dll_path="${{ env.DalamudDevPlugins }}"
+          echo "Listing contents of $dll_path"
+          ls -la "$dll_path"
+
+      # Compress the plugin
+      - name: Compress Plugin
+        run: |
+          dll_path="${{ env.DLL_PATH }}"
+          internal_name="${{ env.INTERNAL_NAME }}"
+          build_type="${{ inputs.build_type }}"
+          output_zip="${{ env.DalamudDevPlugins }}/${internal_name}_${build_type}.zip"
+          echo "output_zip=${{ env.DalamudDevPlugins }}/${internal_name}_${build_type}.zip" >> $GITHUB_ENV
+          zip -r "$output_zip" "$dll_path"/*
+
+      # Verify the plugin package
+      - name: Verify Plugin Package
+        id: verify_plugin_package
+        run: |
+          output_zip="${{ env.output_zip }}"
+          
+          # Check if the file exists
+          if [ ! -f "$output_zip" ]; then
+            echo "Output zip file does not exist."
+            exit 1
+          fi
+          
+          # Check if the file is a zip
+          if ! file "$output_zip" | grep -q 'Zip archive data'; then
+            echo "Output file is not a zip archive."
+            exit 1
+          fi
+          
+          # Check if the zip contains at least one .json file
+          if ! unzip -l "$output_zip" | grep -q '\.json'; then
+            echo "No .json file found in the zip archive."
+            exit 1
+          fi
+          
+          # Check if the zip contains at least one .dll file
+          if ! unzip -l "$output_zip" | grep -q '\.dll'; then
+            echo "No .dll file found in the zip archive."
+            exit 1
+          fi
+          
+          echo "Plugin package verification passed."
