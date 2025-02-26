@@ -71,6 +71,8 @@ jobs:
           mkdir -p "$dev_folder"
           echo "DalamudDevPlugins=$dev_folder" >> $GITHUB_ENV
 
+      # todo: accept .net versions, and set up that
+
       # Set up .NET
       - name: Set up .NET9
         id: setup_net9
@@ -110,6 +112,10 @@ jobs:
             echo "No DLL found in build output."
             exit 1
           fi
+          
+          echo "Plugin build success verification passed."
+
+      # todo: accept a "path to output" variable, to better handle this
 
       # Extract the final .dll
       - name: Extract Internal Info
