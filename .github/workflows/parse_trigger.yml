@@ -1,4 +1,7 @@
 # compatible with AutoRepo-Worker 0.0.6 issue#1 comments
+
+#file: noinspection UndefinedParamsPresent
+
 name: Parse and Process Trigger
 on:
   issue_comment:
@@ -75,7 +78,7 @@ jobs:
       # Convert the trigger's JSON to Outputs
       # e.g. `steps.set_env_vars.outputs.trigger_branch_main`
       # e.g. `needs.parse_trigger.outputs.trigger_branch_test`
-      - name: Parse JSON values to Outputs, Sanitize Target_Name
+      - name: Parse JSON values to Outputs
         id: set_env_vars
         run: |
           json=$(cat parsed.json)
@@ -85,6 +88,26 @@ jobs:
             echo "trigger_$key=$value"
             echo "trigger_$key=$value" >> "$GITHUB_OUTPUT"
           done
+          
+          exit 0
+          
+          # Intentionally unreachable, but sort of 'documentation' for the outputs
+          # (primarily to help each be identified by IJ)
+          
+          echo "trigger_worker_version=$trigger_worker_version" >> "$GITHUB_OUTPUT"
+          echo "trigger_key_owner=$trigger_key_owner" >> "$GITHUB_OUTPUT"
+          echo "trigger_target_repo=$trigger_target_repo" >> "$GITHUB_OUTPUT"
+          echo "trigger_target_name=$trigger_target_name" >> "$GITHUB_OUTPUT"
+          echo "trigger_branch_main=$trigger_branch_main" >> "$GITHUB_OUTPUT"
+          echo "trigger_branch_main_build=$trigger_branch_main_build" >> "$GITHUB_OUTPUT"
+          echo "trigger_branch_test=$trigger_branch_test" >> "$GITHUB_OUTPUT"
+          echo "trigger_branch_test_build=$trigger_branch_test_build" >> "$GITHUB_OUTPUT"
+          echo "trigger_code_repo=$trigger_code_repo" >> "$GITHUB_OUTPUT"
+          echo "trigger_code_private=$trigger_code_private" >> "$GITHUB_OUTPUT"
+          echo "trigger_code_owner=$trigger_code_owner" >> "$GITHUB_OUTPUT"
+          echo "trigger_code_url=$trigger_code_url" >> "$GITHUB_OUTPUT"
+          echo "trigger_code_branch=$trigger_code_branch" >> "$GITHUB_OUTPUT"
+          echo "trigger_code_icon=$trigger_code_icon" >> "$GITHUB_OUTPUT"
 
       # The bot auto-accepts collaboration invites every night,
       # but we are doing it here to make sure that the bot has
@@ -141,6 +164,7 @@ jobs:
     needs: parse_trigger
     if: ${{ needs.parse_trigger.outputs.trigger_branch_main != 'null' }}
 
+    # noinspection UndefinedAction
     uses: ./.github/workflows/build_plugin.yml
     with:
       target_name: ${{ needs.parse_trigger.outputs.trigger_target_name }}
@@ -155,6 +179,7 @@ jobs:
     needs: parse_trigger
     if: ${{ needs.parse_trigger.outputs.trigger_branch_test != 'null' }}
 
+    # noinspection UndefinedAction
     uses: ./.github/workflows/build_plugin.yml
     with:
       target_name: ${{ needs.parse_trigger.outputs.trigger_target_name }}
