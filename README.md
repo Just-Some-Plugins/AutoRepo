@@ -108,7 +108,7 @@ BOT_READ_REPOS_TOKEN=github_pat_.......
 ---
 
     AutoRepo: worker-triggered github actions to build plugins.
-    Copyright (C) 2024  Ethan Henderson (zbee) <ethan@zbee.codes>
+    Copyright (C) 2025  Ethan Henderson (zbee) <ethan@zbee.codes>
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published
