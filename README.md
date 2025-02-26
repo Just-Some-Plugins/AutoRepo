@@ -1,4 +1,4 @@
-# AutoRepo-Worker [![Parse and Process Trigger](https://github.com/Just-Some-Plugins/AutoRepo/actions/workflows/parse_trigger.yml/badge.svg)](https://github.com/Just-Some-Plugins/AutoRepo/actions/workflows/parse_trigger.yml)
+# AutoRepo [![Parse and Process Trigger](https://github.com/Just-Some-Plugins/AutoRepo/actions/workflows/parse_trigger.yml/badge.svg)](https://github.com/Just-Some-Plugins/AutoRepo/actions/workflows/parse_trigger.yml)
 
 This script is designed to get around the limitation in GitHub
 building where an action in one repository cannot be
