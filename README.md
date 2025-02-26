@@ -20,6 +20,10 @@ to it, Cloudflare will pull and publish those changes to the website.
 > [!TIP]
 > For Usage, see [AutoRepo-worker](https://autorepo.justsome.site).
 
+# Build Troubleshooting
+
+x
+
 <details><summary>
 
 # Setup
