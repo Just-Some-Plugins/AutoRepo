@@ -164,6 +164,7 @@ jobs:
     # noinspection UndefinedAction
     uses: ./.github/workflows/build_plugin.yml
     with:
+      build_type: main
       target_name: ${{ needs.parse_trigger.outputs.trigger_target_name }}
       repo: ${{ needs.parse_trigger.outputs.trigger_code_repo }}
       branch: ${{ needs.parse_trigger.outputs.trigger_branch_main }}
@@ -179,6 +180,7 @@ jobs:
     # noinspection UndefinedAction
     uses: ./.github/workflows/build_plugin.yml
     with:
+      build_type: test
       target_name: ${{ needs.parse_trigger.outputs.trigger_target_name }}
       repo: ${{ needs.parse_trigger.outputs.trigger_code_repo }}
       branch: ${{ needs.parse_trigger.outputs.trigger_branch_test }}

@@ -4,6 +4,10 @@ name: Build Plugin
 on:
   workflow_call:
     inputs:
+      build_type:
+        description: 'main, or test'
+        required: true
+        type: string
       target_name:
         description: 'The desired name to build to'
         required: true
