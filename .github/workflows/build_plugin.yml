@@ -101,7 +101,8 @@ jobs:
           dotnet build --configuration $build_config | tee build_output.txt
 
       # Error if build outright failed, or DLL could not be found
-      - name: Check for Build Failure
+      - name: Verify Build Success
+        id: verify_build_success
         run: |
           cd repo
           if grep -q 'Build FAILED.' build_output.txt; then
@@ -122,14 +123,14 @@ jobs:
         id: extract_internal_info
         run: |
           cd repo
-          dll_path_line=$(grep -E '.*\.dll' build_output.txt | tail -n 1)
+          dll_path_line=$(grep -E '.*\.dll' build_output.txt | tail -n 1 | xargs)
           echo "DLL Path Line: $dll_path_line"
-          internal_name=$(echo "$dll_path_line" | awk -F' -> ' '{print $1}')
+          internal_name=$(echo "$dll_path_line" | awk -F' -> ' '{print $1}' | xargs)
           echo "Internal Name='$internal_name'"
-          echo "INTERNAL_NAME=$internal_name" >> $GITHUB_OUTPUT
-          dll_full_path=$(echo "$dll_path_line" | awk -F' -> ' '{print $2}')
-          dll_path=$(dirname "${dll_full_path}")
+          echo "INTERNAL_NAME=$internal_name" >> $GITHUB_ENV
+          dll_full_path=$(echo "$dll_path_line" | awk -F' -> ' '{print $2}' | xargs)
+          dll_path=$(dirname "${dll_full_path}" | xargs)
           echo "DLL Path='$dll_path'"
-          echo "DLL_PATH=$dll_path" >> $GITHUB_OUTPUT
+          echo "DLL_PATH=$dll_path" >> $GITHUB_ENV
 
       # todo: add zipping and moving to $HOME/builds
