@@ -1,7 +1,5 @@
-# compatible with AutoRepo-Worker 0.0.6 issue#1 comments
-
 #file: noinspection UndefinedParamsPresent
-
+# compatible with AutoRepo-Worker 0.0.6 issue#1 comments
 name: Parse and Process Trigger
 on:
   issue_comment:
