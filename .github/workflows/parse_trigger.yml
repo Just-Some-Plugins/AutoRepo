@@ -11,6 +11,7 @@ jobs:
     name: Parse Trigger
     runs-on: ubuntu-latest
     outputs:
+      trigger_target_repo: ${{ steps.set_env_vars.outputs.trigger_target_repo }}
       trigger_code_repo: ${{ steps.set_env_vars.outputs.trigger_code_repo }}
       trigger_target_name: ${{ steps.set_env_vars.outputs.trigger_target_name }}
       trigger_branch_main: ${{ steps.set_env_vars.outputs.trigger_branch_main }}
@@ -165,6 +166,7 @@ jobs:
     uses: ./.github/workflows/build_plugin.yml
     with:
       build_type: main
+      target_repo: ${{ needs.parse_trigger.outputs.trigger_target_repo }}
       target_name: ${{ needs.parse_trigger.outputs.trigger_target_name }}
       repo: ${{ needs.parse_trigger.outputs.trigger_code_repo }}
       branch: ${{ needs.parse_trigger.outputs.trigger_branch_main }}
@@ -181,6 +183,7 @@ jobs:
     uses: ./.github/workflows/build_plugin.yml
     with:
       build_type: test
+      target_repo: ${{ needs.parse_trigger.outputs.trigger_target_repo }}
       target_name: ${{ needs.parse_trigger.outputs.trigger_target_name }}
       repo: ${{ needs.parse_trigger.outputs.trigger_code_repo }}
       branch: ${{ needs.parse_trigger.outputs.trigger_branch_test }}
