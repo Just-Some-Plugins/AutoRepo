@@ -231,3 +231,26 @@ jobs:
           dev_folder="${{ env.DalamudDevPlugins }}"
           echo "Cleaning up $dev_folder"
           rm -rf "$dev_folder"/.dotnet
+
+      # Recursively list the contents of `${{ env.DalamudDevPlugins }}`
+      - name: Show Upload Content
+        id: show_content
+        run: |
+          echo "Listing contents of the directory to be uploaded:"
+          find "${{ env.DalamudDevPlugins }}" -type f
+
+      # Setup node for github-upload-action
+      - name: Setup node
+        id: setup_node
+        uses: actions/setup-node@v1
+
+      # Upload the plugin contents
+      - name: Upload to GitHub
+        uses: LasyIsLazy/github-upload-action@v0.2.0
+        with:
+          access-token: ${{ secrets.BOT_WRITE_REPOS_TOKEN }}
+          file-path: ${{ env.DalamudDevPlugins }}
+          owner: Just-Some-Plugins
+          repo: AutoRepo-Web
+          branch-name: main
+          commit-message: "Upload Plugin: ${{ inputs.repo }}:${{ inputs.branch }}"
