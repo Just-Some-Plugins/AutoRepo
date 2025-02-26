@@ -213,6 +213,7 @@ jobs:
               target="ind"
               file_name=$(echo -n "$repo$branch$build_type" | sha256sum | cut -c1-6)
             else
+              target="$target/$branch"
               file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')$build_type
             fi
             echo " > $target/$file_name.zip"
