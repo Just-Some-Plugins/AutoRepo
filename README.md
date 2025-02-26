@@ -70,10 +70,11 @@ AutoRepo, the repository that the worker is triggering builds on.
 Setup under `Secrets and Variables` > `Actions` > `Secrets` in
 the repository settings.
 
-| Secret Name             | Value                                                          | PAT Link                                                         |
-|-------------------------|----------------------------------------------------------------|------------------------------------------------------------------|
-| BOT_READ_REPOS_TOKEN    | Fine-Grained PAT with Repository: Variables: Read, on AutoRepo | [->](https://github.com/settings/personal-access-tokens/3693504) |
-| BOT_INVITE_ACCEPT_TOKEN | Classic PAT with the full repo scope                           | [->](https://github.com/settings/tokens/1683235558)              |
+| Secret Name             | Value                                                                      | PAT Link                                                         |
+|-------------------------|----------------------------------------------------------------------------|------------------------------------------------------------------|
+| BOT_READ_REPOS_TOKEN    | Fine-Grained PAT with Repository: Variables: Read, on AutoRepo             | [->](https://github.com/settings/personal-access-tokens/3693504) |
+| BOT_INVITE_ACCEPT_TOKEN | Classic PAT with the full repo scope                                       | [->](https://github.com/settings/tokens/1683235558)              |
+| BOT_WRITE_REPOS_TOKEN   | Fine-Grained PAT with Repository: Content: Read and Write, on AutoRepo-Web | [->](https://github.com/settings/personal-access-tokens/5395143) |
 
 ### Local Running
 
