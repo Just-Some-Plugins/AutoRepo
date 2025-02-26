@@ -12,7 +12,10 @@ These Actions are ran from a comment on [an issue](https://github.com/Just-Some-
 created by [AutoRepo-worker](https://autorepo.justsome.site), and they do 
 the actual building of the triggering repositories, and subsequent packaging and
 publishing of the built plugin to the [AutoRepo-Web](https://autorepo.justsome.site/web)
-repository.
+repository, which is a private shell repo.
+The shell has no actual code, it is only a destination for the build script to commit
+to and is the repo for Cloudflare Pages website, so when the build script pushes 
+to it, Cloudflare will pull and publish those changes to the website.
 
 > [!TIP]
 > For Usage, see [AutoRepo-worker](https://autorepo.justsome.site).
