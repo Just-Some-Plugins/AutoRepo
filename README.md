@@ -40,8 +40,8 @@ Here are some examples of how you can handle this:
 [ECommons](https://github.com/NightmareXIV/ECommons/blob/77a7d9af3253928ec18ece2e302f3e640b0a8f0b/ECommons/ECommons.csproj#L39),
 [WhoList](https://github.com/Blooym/Sirensong/blob/4f5c022082172cea7177b4fb49b0e808330539bf/Sirensong/Sirensong.csproj#L46)
 
-<sub>The type or namespace name 'Dalamud' could not be found</sub><br/>
-<sub>(are you missing a using directive or an assembly reference?)</sub>
+> <sub>The type or namespace name 'Dalamud' could not be found</sub><br/>
+> <sub>(are you missing a using directive or an assembly reference?)</sub>
 
 ### NETSDK1073 "WindowsForms was not recognized"
 
@@ -51,8 +51,10 @@ does not have `<EnableWindowsTargeting>true</EnableWindowsTargeting>` in a
 `EnableWindowsTargeting` is required to target `net*-windows` in a project, as the
 build is run on `ubuntu-latest` and does not have the Windows SDK.
 
-<sub>/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.FrameworkReferenceResolution.targets</sub><br/>
-<sub>The FrameworkReference 'Microsoft.WindowsDesktop.App.WindowsForms' was not recognized</sub>
+> <sub>/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.FrameworkReferenceResolution.
+> targets</sub><br/>
+> <sub>The FrameworkReference 'Microsoft.WindowsDesktop.App.WindowsForms' was not 
+> recognized</sub>
 
 <details><summary>
 
