@@ -67,7 +67,7 @@ BOT_READ_REPOS_TOKEN=github_pat_.......
 
 ---
 
-    AutoRepo-Worker: a worker script to trigger GitHub builds with Webhooks.
+    AutoRepo: worker-triggered github actions to build plugins.
     Copyright (C) 2024  Ethan Henderson (zbee) <ethan@zbee.codes>
 
      This program is free software: you can redistribute it and/or modify
