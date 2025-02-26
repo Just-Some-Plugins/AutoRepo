@@ -22,7 +22,37 @@ to it, Cloudflare will pull and publish those changes to the website.
 
 # Build Troubleshooting
 
-x
+> Builds are ran on `ubuntu-latest`, with `net9.0.*` and `net8.0.*` installed,
+> with all submodules, and all projects restored, directed at a solution file
+> in the root of the repository.
+
+If you are having trouble with the build, it is suggested that you try to run
+AutoRepo locally to see if you can reproduce the error and/or debug it.
+
+### CS0246 "missing a using directive"
+
+Your project, or one of its dependencies, is not using `*nix`-compatible
+`DalamudLibPath` values.\
+`$(HOME)/.xlcore/dalamud/Hooks/dev/` or `$(DALAMUD_HOME)/` is expected.
+
+Here are some examples of how you can handle this:
+[WrathCombo](https://github.com/PunishXIV/WrathCombo/blob/fa11ed7f664c3fccd4f2d5c7feed31d78a0f0a86/WrathCombo/WrathCombo.csproj#L18),
+[ECommons](https://github.com/NightmareXIV/ECommons/blob/77a7d9af3253928ec18ece2e302f3e640b0a8f0b/ECommons/ECommons.csproj#L39),
+[WhoList](https://github.com/Blooym/Sirensong/blob/4f5c022082172cea7177b4fb49b0e808330539bf/Sirensong/Sirensong.csproj#L46)
+
+<sub>The type or namespace name 'Dalamud' could not be found</sub><br/>
+<sub>(are you missing a using directive or an assembly reference?)</sub>
+
+### NETSDK1073 "WindowsForms was not recognized"
+
+Your plugin, or one of its dependencies, is targeting `net*-windows` but
+does not have `<EnableWindowsTargeting>true</EnableWindowsTargeting>` in a
+`PropertyGroup`.\
+`EnableWindowsTargeting` is required to target `net*-windows` in a project, as the
+build is run on `ubuntu-latest` and does not have the Windows SDK.
+
+<sub>/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.FrameworkReferenceResolution.targets</sub><br/>
+<sub>The FrameworkReference 'Microsoft.WindowsDesktop.App.WindowsForms' was not recognized</sub>
 
 <details><summary>
 
