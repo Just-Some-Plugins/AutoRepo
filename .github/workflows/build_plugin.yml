@@ -230,8 +230,9 @@ jobs:
         id: clean_up_dev_folder
         run: |
           dev_folder="${{ env.DalamudDevPlugins }}"
-          echo "Cleaning up $dev_folder"
-          rm -rf "$dev_folder"/.dotnet
+          output_zip="${{ env.output_zip }}"
+          echo "Cleaning up $dev_folder, excluding $output_zip"
+          find "$dev_folder" ! -name "$(basename "$output_zip")" -delete
 
       # Recursively list the contents of `${{ env.DalamudDevPlugins }}`
       - name: Show Upload Content
@@ -244,6 +245,15 @@ jobs:
       - name: Setup node
         id: setup_node
         uses: actions/setup-node@v1
+
+      # Clean up Dev Folder
+      - name: Clean up Dev Folder, Final
+        id: clean_up_dev_folder_again
+        run: |
+          dev_folder="${{ env.DalamudDevPlugins }}"
+          echo "Cleaning up $dev_folder, excluding .zip files"
+          find "$dev_folder" -type f ! -name '*.zip' -delete
+          find "$dev_folder" -type d -empty -delete
 
       # Upload the plugin contents
       - name: Upload to GitHub
