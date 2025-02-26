@@ -137,8 +137,6 @@ jobs:
           echo "DLL Path='$dll_path'"
           echo "DLL_PATH=$dll_path" >> $GITHUB_ENV
 
-      # todo: add zipping and moving to $HOME/builds
-
       # List contents of the directory
       - name: List DLL Path Contents
         id: list_dll_contents
@@ -197,6 +195,34 @@ jobs:
           
           echo "Plugin package verification passed."
 
+      # Build the paths to upload the plugin to
+      - name: Build Upload Paths
+        id: build_upload_paths
+        run: |
+          internal_name="${{ env.INTERNAL_NAME }}"
+          target_repo="${{ inputs.target_repo }}"
+          repo="${{ inputs.repo }}"
+          branch="${{ inputs.branch }}"
+          build_type="${{ inputs.build_type }}"
+          output_zip="${{ env.output_zip }}"
+          
+          IFS=',' read -r -a target_repos <<< "$target_repo"
+          
+          for target in "${target_repos[@]}"; do
+            if [ "$target" = "individual" ]; then
+              target="ind"
+              file_name=$(echo -n "$repo$branch$build_type" | sha256sum | cut -c1-6)
+            else
+              file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')$build_type
+            fi
+            echo " > $target/$file_name.zip"
+          
+            mkdir -p "${{ env.DalamudDevPlugins }}/$target"
+            cp "$output_zip" "${{ env.DalamudDevPlugins }}/$target/$file_name.zip"
+            echo " >> ${{ env.DalamudDevPlugins }}/$target/$file_name.zip"
+          done
+          
+          rm "$output_zip"
 
       # Delete extra bits in the dev folder
       - name: Clean up Dev Folder
