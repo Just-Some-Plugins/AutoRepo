@@ -155,6 +155,8 @@ jobs:
           echo "output_zip=${{ env.DalamudDevPlugins }}/${internal_name}_${build_type}.zip" >> $GITHUB_ENV
           zip -r "$output_zip" "$dll_path"/*
 
+      # todo: upload the zip as an artifact here, split the rest to new steps
+
       # Verify the plugin package
       - name: Verify Plugin Package
         id: verify_plugin_package
@@ -217,7 +219,7 @@ jobs:
           
           rm "$output_zip"
 
-      # Recursively list the contents of `${{ env.DalamudDevPlugins }}`
+      # Recursively list the contents of `DalamudDevPlugins`
       - name: Show Upload Content
         id: show_content
         run: |
