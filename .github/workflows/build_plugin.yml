@@ -234,6 +234,11 @@ jobs:
           name: ${{ inputs.build_type }}.zip
           path: .
 
+      # Unzip the artifact
+      - name: Unzip Plugin Artifact
+        id: unzip_plugin
+        run: unzip -o ${{ inputs.build_type }}.zip -d .
+
       # List contents of the directory
       - name: List Current Path Contents
         id: list_current_contents
