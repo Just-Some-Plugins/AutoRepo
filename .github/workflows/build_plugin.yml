@@ -358,7 +358,7 @@ jobs:
               exit 1
             fi
           
-            rm "${internal_name}.json"
+            rm "${{ env.DalamudDevPlugins }}/${internal_name}.json"
           done
 
       # Check the repo files
