@@ -232,26 +232,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.build_type }}.zip
-          path: .
+          path: ${{ env.DalamudDevPlugins }}
 
-      # List contents of the directory
-      - name: List Current Path Contents Before unzip
-        id: list_current_contents_early
+      # List the contents of the dev folder
+      - name: List Dev Folder Contents
+        id: list_dev_folder_contents
         run: |
-          echo "Listing contents of current path"
-          ls -la
-
-      # Unzip the artifact
-      - name: Unzip Plugin Artifact
-        id: unzip_plugin
-        run: unzip -o ${{ inputs.build_type }}.zip -d .
-
-      # List contents of the directory
-      - name: List Current Path Contents
-        id: list_current_contents
-        run: |
-          echo "Listing contents of current path"
-          ls -la
+          echo "Listing contents of ${{ env.DalamudDevPlugins }}"
+          ls -la ${{ env.DalamudDevPlugins }}
 
       # Build the paths to upload the plugin to
       - name: Build Upload Paths
@@ -266,6 +254,7 @@ jobs:
           
           IFS=',' read -r -a target_repos <<< "$target_repo"
           
+          # Setup repo data
           for target in "${target_repos[@]}"; do
             if [ "$target" = "individual" ]; then
               target="ind"
@@ -283,25 +272,107 @@ jobs:
           
           rm "$output_zip"
 
-      # Recursively list the contents of `DalamudDevPlugins`
-      - name: Show Upload Content
-        id: show_content
+      # Build the repo files
+      - name: Build Repo Files
+        id: build_repo_files
         run: |
-          echo "Listing contents of the directory to be uploaded:"
-          find "${{ env.DalamudDevPlugins }}" -type f
+          target_name="${{ inputs.target_name }}"
+          internal_name="${{ env.internal_name }}"
+          target_repo="${{ inputs.target_repo }}"
+          repo="${{ inputs.repo }}"
+          branch="${{ inputs.branch }}"
+          build_type="${{ inputs.build_type }}"
+          output_zip="${{ env.output_zip }}"
+          
+          IFS=',' read -r -a target_repos <<< "$target_repo"
+          
+          # Setup repo data
+          for target in "${target_repos[@]}"; do
+            if [ "$target" = "individual" ]; then
+              target="ind"
+              repo_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)
+              file_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)$build_type
+            else
+              target="$target/$branch"
+              repo_name="repo"
+              file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')$build_type
+            fi
+            zip="${{ env.DalamudDevPlugins }}/$target/$file_name.zip"
+            repo_name="${repo_name,,}.json"
+            repo_file="${{ env.DalamudDevPlugins }}/$target/$repo_name"
+            echo " > $repo_file"
+          
+            # Load manifest data
+            unzip -j "$zip" "${internal_name}.json" -d "${{ env.DalamudDevPlugins }}"
+            json_file="${{ env.DalamudDevPlugins }}/${internal_name}.json"
+            json=$(cat "$json_file")
+            for key in $(echo "$json" | jq -r 'keys[]'); do
+              key=$(echo "$key" | tr '[:upper:]' '[:lower:]')
+              value=$(echo "$json" | jq -r --arg key "$key" '.[$key]')
+              manifest_$key=$value
+            done
+            
+            # Write repo file
+            if [ ! -f "$repo_file" ]; then
+              echo "Repo file does not exist, creating $repo_file"
+              echo '[' > "$repo_file"
+              echo '{' >> "$repo_file"
+              echo '  "Name": "'$target_name'",' >> "$repo_file"
+              echo '  "InternalName": "'$internal_name'",' >> "$repo_file"
+              echo '  "Author": "'$manifest_author'",' >> "$repo_file"
+              echo '}' >> "$repo_file"
+              echo ']' >> "$repo_file"
+            else
+              echo "Repo file exists: $repo_file"
+              echo "This is not yet supported."
+              exit 1
+            fi
+          done
 
-      # Setup node for github-upload-action
-      - name: Setup node
-        id: setup_node
-        uses: actions/setup-node@v1
+      # Check the repo files
+      - name: Check Repo Files
+        id: check_repo_files
+        run: |
+          target_repo="${{ inputs.target_repo }}"
+          repo="${{ inputs.repo }}"
+          branch="${{ inputs.branch }}"
+          build_type="${{ inputs.build_type }}"
+          
+          IFS=',' read -r -a target_repos <<< "$target_repo"
+          
+          for target in "${target_repos[@]}"; do
+            if [ "$target" = "individual" ]; then
+              target="ind"
+              repo_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)
+              file_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)$build_type
+            else
+              target="$target/$branch"
+              repo_name="repo"
+              file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')$build_type
+            fi
+            zip="${{ env.DalamudDevPlugins }}/$target/$file_name.zip"
+            repo_name="${repo_name,,}.json"
+            repo_file="${{ env.DalamudDevPlugins }}/$target/$repo_name"
+          
+            echo "Contents of the JSON file:"
+            cat "$json_file"
+          done
 
-      # Upload the plugin contents
-      - name: Upload to GitHub
-        uses: LasyIsLazy/github-upload-action@v0.2.0
+      # Re-Upload the zips and  as an artifact
+      - name: Re-Upload Plugin Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          access-token: ${{ secrets.BOT_WRITE_REPOS_TOKEN }}
-          file-path: ${{ env.DalamudDevPlugins }}
-          owner: Just-Some-Plugins
-          repo: AutoRepo-Web
-          branch-name: main
-          commit-message: "Upload Plugin: ${{ inputs.repo }}:${{ inputs.branch }}"
+          name: ${{ inputs.build_type }}.zip
+          path: ${{ env.DalamudDevPlugins }}
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+
+  # Publish the plugin
+  run_publish_plugin:
+    name: ${{ inputs.build_type }}
+    needs: build_repo
+
+    # noinspection UndefinedAction
+    uses: ./.github/workflows/publish_plugin.yml
+    secrets: inherit
