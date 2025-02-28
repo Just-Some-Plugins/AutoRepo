@@ -176,7 +176,7 @@ jobs:
   # Build the test branch if it was requested in the trigger
   run_build_test:
     name: Test
-    needs: parse_trigger
+    needs: [run_build_main, parse_trigger]
     if: ${{ needs.parse_trigger.outputs.trigger_branch_test != 'null' }}
 
     # noinspection UndefinedAction
