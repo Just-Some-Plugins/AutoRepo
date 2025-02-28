@@ -75,6 +75,7 @@ jobs:
       - name: Notify Discord (JSP#autorepo-triggers)
         uses: tsickert/discord-webhook@v6.0.0
         with:
+          wait: false
           webhook-url: ${{ secrets.DISCORD_HOOK }}
           flags: 4
           embed-color: 12041720
