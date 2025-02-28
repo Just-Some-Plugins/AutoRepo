@@ -285,7 +285,7 @@ jobs:
           output_zip="${{ env.output_zip }}"
           
           IFS=',' read -r -a target_repos <<< "$target_repo"
-          
+          #10
           # Setup repo data
           for target in "${target_repos[@]}"; do
             if [ "$target" = "individual" ]; then
@@ -301,7 +301,7 @@ jobs:
             repo_name_file="${repo_name,,}.json"
             repo_file="${{ env.DalamudDevPlugins }}/$target/$repo_name_file"
             echo " > $repo_file"
-            
+            #26
             # Load manifest data
             unzip -j "$zip" "${internal_name}.json" -d "${{ env.DalamudDevPlugins }}"
             json_file="${{ env.DalamudDevPlugins }}/${internal_name}.json"
@@ -312,7 +312,7 @@ jobs:
               eval "manifest_${safe_key}='${value//\'/\'\\\'\'}'"
               echo "manifest_${safe_key}='${value}'"
             done
-            
+            #36
             # Write repo file
             if [ ! -f "$repo_file" ]; then
               echo "Repo file does not exist, creating $repo_file"
@@ -328,9 +328,8 @@ jobs:
               echo '    "AssemblyVersion": "'$manifest_assemblyversion'",' >> "$repo_file"
               echo '    "DalamudApiLevel": "'$manifest_dalamudapilevel'",' >> "$repo_file"
               echo '    "IconUrl": "'$manifest_iconurl'",' >> "$repo_file"
-          
-              $target/$file_name.zip
-              url_base="https://repo.justsome.site/"
+              #52
+              url_base="https://repo.justsome.site/$target/$file_name.zip"
               main_url="${url_base}${target}/${file_name}.zip"
               echo '    "DownloadLinkInstall": "'$main_url'",' >> "$repo_file"
               echo '    "DownloadLinkUpdate": "'$main_url'",' >> "$repo_file"
