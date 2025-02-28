@@ -217,6 +217,7 @@ jobs:
     env:
       output_zip: ${{ needs.build_plugin.outputs.output_zip }}
       internal_name: ${{ needs.build_plugin.outputs.internal_name }}
+    outputs:
       repo_url: ${{ steps.build_repo_file.outputs.repo_url }}
 
     steps:
@@ -415,5 +416,5 @@ jobs:
       build_type: ${{ inputs.build_type }}
       repo: ${{ inputs.repo }}
       branch: ${{ inputs.branch }}
-      repo_url: ${{ outputs.REPO_URL }}
+      repo_url: ${{ needs.build_repo.outputs.repo_url }}
     secrets: inherit
