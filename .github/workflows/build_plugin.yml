@@ -309,7 +309,7 @@ jobs:
             for key in $(echo "$json" | jq -r 'keys[]'); do
               key=$(echo "$key" | tr '[:upper:]' '[:lower:]')
               value=$(echo "$json" | jq -r --arg key "$key" '.[$key]')
-              manifest_$key=$value
+              manifest_$key="$value"
             done
             
             # Write repo file
