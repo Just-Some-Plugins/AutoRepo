@@ -1,0 +1,52 @@
+#file: noinspection UndefinedParamsPresent
+
+name: Publish Plugin
+on:
+  workflow_call:
+    secrets:
+      BOT_WRITE_REPOS_TOKEN:
+        description: 'Fine-Grained PAT with Repository: Content: Read and Write, on AutoRepo-Web'
+        required: true
+
+jobs:
+  publish_plugin:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Setup folder to place builds into
+      - name: Create Output Folder
+        id: make_output_folder
+        run: |
+          dev_folder="${{ runner.temp }}/builds"
+          mkdir -p "$dev_folder"
+          echo "DalamudDevPlugins=$dev_folder" >> $GITHUB_ENV
+
+      # Download the uploaded artifact
+      - name: Download Plugin Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.build_type }}.zip
+          path: ${{ env.DalamudDevPlugins }}
+
+      # Recursively list the contents of `DalamudDevPlugins`
+      - name: Show Upload Content
+        id: show_content
+        run: |
+          echo "Listing contents of the directory to be uploaded:"
+          find "${{ env.DalamudDevPlugins }}" -type f
+
+      # Setup node for github-upload-action
+      - name: Setup node
+        id: setup_node
+        uses: actions/setup-node@v1
+
+      # Upload the plugin contents
+      - name: Upload to GitHub
+        uses: LasyIsLazy/github-upload-action@v0.2.0
+        with:
+          access-token: ${{ secrets.BOT_WRITE_REPOS_TOKEN }}
+          file-path: ${{ env.DalamudDevPlugins }}
+          owner: Just-Some-Plugins
+          repo: AutoRepo-Web
+          branch-name: main
+          commit-message: "Upload Plugin: ${{ inputs.repo }}:${{ inputs.branch }}"
