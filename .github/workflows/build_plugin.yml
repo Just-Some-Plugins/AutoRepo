@@ -349,7 +349,7 @@ jobs:
               echo '    "LoadPriority": 0,' >> "$repo_file"
               echo '    "IsHide": false,' >> "$repo_file"
               echo '    "TestingExclusive": "False",' >> "$repo_file"
-              echo '    "LastUpdate": 0,' >> "$repo_file"
+              echo '    "LastUpdate": 0' >> "$repo_file"
               echo '  }' >> "$repo_file"
               echo ']' >> "$repo_file"
             else
