@@ -308,11 +308,11 @@ jobs:
             json=$(cat "$json_file")
             for key in $(echo "$json" | jq -r 'keys[]'); do
               echo "Processing key: $key"
-              key=$(echo "$key" | tr '[:upper:]' '[:lower:]')
-              value=$(echo "$json" | jq -r --arg key "$key" '.[key]')
+              safe_key=$(echo "$key" | tr '[:upper:]' '[:lower:]')
+              value=$(echo "$json" | jq -r --arg key "$key" '.[$key]')
               echo "Processing value: $value"
-              eval "manifest_${key}='${value}'"
-              echo "manifest_${key}='${value}'"
+              eval "manifest_${safe_key}='${value}'"
+              echo "manifest_${safe_key}='${value}'"
             done
             
             # Write repo file
