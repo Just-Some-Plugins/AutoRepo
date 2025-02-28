@@ -231,7 +231,7 @@ jobs:
       - name: Download Plugin Artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.build_type }}.zip
+          name: ${{ inputs.build_type }}
           path: ${{ env.DalamudDevPlugins }}
 
       # List the contents of the dev folder
