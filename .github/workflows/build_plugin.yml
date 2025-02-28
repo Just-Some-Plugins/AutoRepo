@@ -40,6 +40,7 @@ jobs:
       DALAMUD_HOME: $HOME/.xlcore/dalamud/Hooks/dev
     outputs:
       output_zip: ${{ steps.compress_plugin.outputs.output_zip }}
+      internal_name: ${{ steps.extract_internal_info.outputs.INTERNAL_NAME }}
 
     steps:
       # Debug Inputs
@@ -134,6 +135,7 @@ jobs:
           internal_name=$(echo "$dll_path_line" | awk -F' -> ' '{print $1}' | xargs)
           echo "Internal Name='$internal_name'"
           echo "INTERNAL_NAME=$internal_name" >> $GITHUB_ENV
+          echo "INTERNAL_NAME=$internal_name" >> $GITHUB_OUTPUT
           dll_full_path=$(echo "$dll_path_line" | awk -F' -> ' '{print $2}' | xargs)
           dll_path=$(dirname "${dll_full_path}" | xargs)
           echo "DLL Path='$dll_path'"
@@ -214,8 +216,17 @@ jobs:
     runs-on: ubuntu-latest
     env:
       output_zip: ${{ needs.build_plugin.outputs.output_zip }}
+      internal_name: ${{ needs.build_plugin.outputs.internal_name }}
 
     steps:
+      # Setup folder to place builds into
+      - name: Create Output Folder
+        id: make_output_folder
+        run: |
+          dev_folder="${{ runner.temp }}/builds"
+          mkdir -p "$dev_folder"
+          echo "DalamudDevPlugins=$dev_folder" >> $GITHUB_ENV
+
       # Download the uploaded artifact
       - name: Download Plugin Artifact
         uses: actions/download-artifact@v4
@@ -234,7 +245,7 @@ jobs:
       - name: Build Upload Paths
         id: build_upload_paths
         run: |
-          internal_name="${{ env.INTERNAL_NAME }}"
+          internal_name="${{ env.internal_name }}"
           target_repo="${{ inputs.target_repo }}"
           repo="${{ inputs.repo }}"
           branch="${{ inputs.branch }}"
@@ -246,7 +257,7 @@ jobs:
           for target in "${target_repos[@]}"; do
             if [ "$target" = "individual" ]; then
               target="ind"
-              file_name=$(echo -n "$repo$branch$build_type" | sha256sum | cut -c1-6)
+              file_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)$build_type
             else
               target="$target/$branch"
               file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')$build_type
