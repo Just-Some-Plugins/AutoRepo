@@ -307,6 +307,7 @@ jobs:
             json_file="${{ env.DalamudDevPlugins }}/${internal_name}.json"
             json=$(cat "$json_file")
             for key in $(echo "$json" | jq -r 'keys[]'); do
+              echo "Processing key: $key"
               key=$(echo "$key" | tr '[:upper:]' '[:lower:]')
               value=$(echo "$json" | jq -r --arg key "$key" '.[$key]')
               eval "manifest_${key}='${value}'"
