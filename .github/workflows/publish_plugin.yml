@@ -77,7 +77,7 @@ jobs:
         with:
           webhook-url: ${{ secrets.DISCORD_HOOK }}
           flags: 4
-          embed-color: 0xb7bdf8
+          embed-color: 12041720
           embed-title: "Plugin Uploaded: ${{ inputs.repo }}:${{ inputs.branch }}"
           embed-url: "${{ inputs.repo_url }}"
           embed-description: "[Action Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
