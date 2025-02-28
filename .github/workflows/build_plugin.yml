@@ -357,6 +357,8 @@ jobs:
               echo "This is not yet supported."
               exit 1
             fi
+          
+            rm "${internal_name}.json"
           done
 
       # Check the repo files
