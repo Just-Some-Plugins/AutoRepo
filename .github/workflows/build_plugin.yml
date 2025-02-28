@@ -311,7 +311,7 @@ jobs:
               safe_key=$(echo "$key" | tr '[:upper:]' '[:lower:]')
               value=$(echo "$json" | jq -r --arg key "$key" '.[$key]')
               echo "Processing value: $value"
-              eval "manifest_${safe_key}='${value}'"
+              eval "manifest_${safe_key}='${value//\'/\'\\\'\'}'"
               echo "manifest_${safe_key}='${value}'"
             done
             
