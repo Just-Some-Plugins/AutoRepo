@@ -206,7 +206,7 @@ jobs:
       - name: Upload Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.build_type }}.zip
+          name: ${{ inputs.build_type }}
           path: ${{ env.output_zip }}
           if-no-files-found: error
           retention-days: 1
@@ -391,7 +391,7 @@ jobs:
       - name: Re-Upload Plugin Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.build_type }}.zip
+          name: ${{ inputs.build_type }}
           path: ${{ env.DalamudDevPlugins }}
           if-no-files-found: error
           retention-days: 1
@@ -404,4 +404,6 @@ jobs:
 
     # noinspection UndefinedAction
     uses: ./.github/workflows/publish_plugin.yml
+    with:
+      build_type: ${{ inputs.build_type }}
     secrets: inherit
