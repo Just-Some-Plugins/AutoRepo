@@ -408,4 +408,6 @@ jobs:
     uses: ./.github/workflows/publish_plugin.yml
     with:
       build_type: ${{ inputs.build_type }}
+      repo: ${{ inputs.repo }}
+      branch: ${{ inputs.branch }}
     secrets: inherit

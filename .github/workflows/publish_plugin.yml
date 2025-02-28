@@ -8,6 +8,14 @@ on:
         description: 'main, or test'
         required: true
         type: string
+      repo:
+        description: 'The repository to trigger the build for'
+        required: true
+        type: string
+      branch:
+        description: 'The branch to build'
+        required: true
+        type: string
     secrets:
       BOT_WRITE_REPOS_TOKEN:
         description: 'Fine-Grained PAT with Repository: Content: Read and Write, on AutoRepo-Web'
