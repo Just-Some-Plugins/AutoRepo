@@ -235,8 +235,8 @@ jobs:
           path: .
 
       # List contents of the directory
-      - name: List Current Path Contents
-        id: list_current_contents
+      - name: List Current Path Contents Before unzip
+        id: list_current_contents_early
         run: |
           echo "Listing contents of current path"
           ls -la
