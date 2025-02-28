@@ -354,7 +354,7 @@ jobs:
             repo_file="${{ env.DalamudDevPlugins }}/$target/$repo_name"
           
             echo "Contents of the JSON file:"
-            cat "repo_file"
+            cat "$repo_file"
           done
 
       # Re-Upload the zips and  as an artifact
