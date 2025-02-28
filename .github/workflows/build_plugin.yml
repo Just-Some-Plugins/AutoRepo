@@ -273,8 +273,8 @@ jobs:
           rm "$output_zip"
 
       # Build the repo files
-      - name: Build Repo Files
-        id: build_repo_files
+      - name: Build Repo File
+        id: build_repo_file
         run: |
           target_name="${{ inputs.target_name }}"
           internal_name="${{ env.internal_name }}"
@@ -298,19 +298,17 @@ jobs:
               file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')$build_type
             fi
             zip="${{ env.DalamudDevPlugins }}/$target/$file_name.zip"
-            repo_name="${repo_name,,}.json"
-            repo_file="${{ env.DalamudDevPlugins }}/$target/$repo_name"
+            repo_name_file="${repo_name,,}.json"
+            repo_file="${{ env.DalamudDevPlugins }}/$target/$repo_name_file"
             echo " > $repo_file"
-          
+            
             # Load manifest data
             unzip -j "$zip" "${internal_name}.json" -d "${{ env.DalamudDevPlugins }}"
             json_file="${{ env.DalamudDevPlugins }}/${internal_name}.json"
             json=$(cat "$json_file")
             for key in $(echo "$json" | jq -r 'keys[]'); do
-              echo "Processing key: $key"
               safe_key=$(echo "$key" | tr '[:upper:]' '[:lower:]')
               value=$(echo "$json" | jq -r --arg key "$key" '.[$key]')
-              echo "Processing value: $value"
               eval "manifest_${safe_key}='${value//\'/\'\\\'\'}'"
               echo "manifest_${safe_key}='${value}'"
             done
@@ -319,11 +317,41 @@ jobs:
             if [ ! -f "$repo_file" ]; then
               echo "Repo file does not exist, creating $repo_file"
               echo '[' > "$repo_file"
-              echo '{' >> "$repo_file"
-              echo '  "Name": "'$target_name'",' >> "$repo_file"
-              echo '  "InternalName": "'$internal_name'",' >> "$repo_file"
-              echo '  "Author": "'$manifest_author'",' >> "$repo_file"
-              echo '}' >> "$repo_file"
+              echo '  {' >> "$repo_file"
+              echo '    "Name": "'$target_name'",' >> "$repo_file"
+              echo '    "InternalName": "'$internal_name'",' >> "$repo_file"
+              echo '    "Author": "'$manifest_author'",' >> "$repo_file"
+              echo '    "Punchline": "'$manifest_punchline'",' >> "$repo_file"
+              echo '    "Description": "'$manifest_description'",' >> "$repo_file"
+              echo '    "RepoUrl": "'$manifest_repourl'",' >> "$repo_file"
+              echo '    "ApplicableVersion": "'$manifest_applicableversion'",' >> "$repo_file"
+              echo '    "AssemblyVersion": "'$manifest_assemblyversion'",' >> "$repo_file"
+              echo '    "DalamudApiLevel": "'$manifest_dalamudapilevel'",' >> "$repo_file"
+              echo '    "IconUrl": "'$manifest_iconurl'",' >> "$repo_file"
+          
+              $target/$file_name.zip
+              url_base="https://repo.justsome.site/"
+              main_url="${url_base}${target}/${file_name}.zip"
+              echo '    "DownloadLinkInstall": "'$main_url'",' >> "$repo_file"
+              echo '    "DownloadLinkUpdate": "'$main_url'",' >> "$repo_file"
+          
+              if [ "${{ inputs.build_type }}" = "test" ]; then
+                echo '    "TestingAssemblyVersion": "'$manifest_testingassemblyversion'",' >>  "$repo_file"
+                echo '    "TestingDalamudApiLevel": "'$manifest_testingdalamudapilevel'",' >> "$repo_file"
+                echo '    "DownloadLinkTesting": "'$main_url'",' >> "$repo_file"
+              else
+                echo '    "TestingAssemblyVersion": "",' >>  "$repo_file"
+                echo '    "TestingDalamudApiLevel": "",' >> "$repo_file"
+                testing_url="${url_base}${target}/${repo_name}test.zip"
+                echo '    "DownloadLinkTesting": "'$main_url'",' >> "$repo_file"
+              fi
+          
+              echo '    "AcceptsFeedback": false,' >> "$repo_file"
+              echo '    "LoadPriority": 0,' >> "$repo_file"
+              echo '    "IsHide": false,' >> "$repo_file"
+              echo '    "TestingExclusive": "False",' >> "$repo_file"
+              echo '    "LastUpdate": 0,' >> "$repo_file"
+              echo '  }' >> "$repo_file"
               echo ']' >> "$repo_file"
             else
               echo "Repo file exists: $repo_file"
