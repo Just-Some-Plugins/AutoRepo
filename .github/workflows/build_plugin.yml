@@ -361,6 +361,8 @@ jobs:
             rm "${{ env.DalamudDevPlugins }}/${internal_name}.json"
           done
 
+      # todo: support reading an existing repo file, adding `testing` entries if a plugin matches
+
       # Check the repo files
       - name: Check Repo Files
         id: check_repo_files
