@@ -338,13 +338,13 @@ jobs:
               echo '    "DownloadLinkInstall": "'$main_url'",' >> "$repo_file"
               echo '    "DownloadLinkUpdate": "'$main_url'",' >> "$repo_file"
           
-              if [ "${{ inputs.build_type }}" = "test" ]; then
-                echo '    "TestingAssemblyVersion": "'$manifest_testingassemblyversion'",' >>  "$repo_file"
-                echo '    "TestingDalamudApiLevel": "'$manifest_testingdalamudapilevel'",' >> "$repo_file"
+              if [ "${{ inputs.build_type }}" != "test" ]; then
                 echo '    "DownloadLinkTesting": "'$main_url'",' >> "$repo_file"
               else
-                testing_url="${url_base}${target}/${repo_name}test.zip"
+                testing_url="${url_base}${target}/${repo_name}_test.zip"
                 echo '    "DownloadLinkTesting": "'$testing_url'",' >> "$repo_file"
+                echo '    "TestingAssemblyVersion": "'$manifest_testingassemblyversion'",' >>  "$repo_file"
+                echo '    "TestingDalamudApiLevel": "'$manifest_testingdalamudapilevel'",' >> "$repo_file"
               fi
           
               echo '    "AcceptsFeedback": false,' >> "$repo_file"
