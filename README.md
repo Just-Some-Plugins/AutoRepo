@@ -26,6 +26,10 @@ to it, Cloudflare will pull and publish those changes to the website.
 > with all submodules, and all projects restored, directed at a solution file
 > in the root of the repository.
 
+> If your build outputs a folder of the same name as your project with a `.zip` in
+> it (in the same directory as the `.dll`), that will be used as the package 
+> instead of one being compressed by the build script.
+
 If you are having trouble with the build, it is suggested that you try to run
 AutoRepo locally to see if you can reproduce the error and/or debug it.
 
