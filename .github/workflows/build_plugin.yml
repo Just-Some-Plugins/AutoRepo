@@ -350,9 +350,7 @@ jobs:
               repo_name="repo"
               file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')$build_type
             fi
-            zip="${{ env.DalamudDevPlugins }}/$target/$file_name.zip"
-            repo_name="${repo_name,,}.json"
-            repo_file="${{ env.DalamudDevPlugins }}/$target/$repo_name"
+            json_file="${{ env.DalamudDevPlugins }}/${internal_name}.json"
           
             echo "Contents of the JSON file:"
             cat "$json_file"
