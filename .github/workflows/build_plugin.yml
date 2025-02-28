@@ -153,7 +153,8 @@ jobs:
           build_type="${{ inputs.build_type }}"
           output_zip="${{ env.DalamudDevPlugins }}/${internal_name}_${build_type}.zip"
           echo "output_zip=${{ env.DalamudDevPlugins }}/${internal_name}_${build_type}.zip" >> $GITHUB_ENV
-          zip -rj "$output_zip" "$dll_path"/*
+          cd $dll_path
+          zip -r "$output_zip" ./*
 
       # todo: upload the zip as an artifact here, split the rest to new steps
 
