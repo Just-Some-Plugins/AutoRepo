@@ -157,7 +157,7 @@ jobs:
           echo "trigger_branch_test_build=${{ needs.parse_trigger.outputs.trigger_branch_test_build }}"
 
   # Build the main branch if it was requested in the trigger
-  build_main:
+  run_build_main:
     name: Main
     needs: parse_trigger
     if: ${{ needs.parse_trigger.outputs.trigger_branch_main != 'null' }}
@@ -174,7 +174,7 @@ jobs:
     secrets: inherit
 
   # Build the test branch if it was requested in the trigger
-  build_test:
+  run_build_test:
     name: Test
     needs: parse_trigger
     if: ${{ needs.parse_trigger.outputs.trigger_branch_test != 'null' }}
