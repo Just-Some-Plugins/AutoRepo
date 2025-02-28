@@ -16,9 +16,16 @@ on:
         description: 'The branch to build'
         required: true
         type: string
+      repo_url:
+        description: 'The URL of the repo.json file being made, for the last target repo'
+        required: true
+        type: string
     secrets:
       BOT_WRITE_REPOS_TOKEN:
         description: 'Fine-Grained PAT with Repository: Content: Read and Write, on AutoRepo-Web'
+        required: true
+      DISCORD_HOOK:
+        description: 'Discord hook to JSP#autorepo-triggers'
         required: true
 
 jobs:
@@ -63,3 +70,16 @@ jobs:
           repo: AutoRepo-Web
           branch-name: main
           commit-message: "Upload Plugin: ${{ inputs.repo }}:${{ inputs.branch }}"
+
+      # Notify Discord
+      - name: Notify Discord (JSP#autorepo-triggers)
+        uses: tsickert/discord-webhook@v6.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_HOOK }}
+          flags: 4
+          embed-color: 0xb7bdf8
+          embed-title: "Plugin Uploaded: ${{ inputs.repo }}:${{ inputs.branch }}"
+          embed-url: "${{ inputs.repo_url }}"
+          embed-description: "[Action Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          # todo: add a field for each target_repo
+          # design with https://message.style/app/editor

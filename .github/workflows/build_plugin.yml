@@ -217,6 +217,7 @@ jobs:
     env:
       output_zip: ${{ needs.build_plugin.outputs.output_zip }}
       internal_name: ${{ needs.build_plugin.outputs.internal_name }}
+      repo_url: ${{ steps.build_repo_file.outputs.repo_url }}
 
     steps:
       # Setup folder to place builds into
@@ -283,6 +284,8 @@ jobs:
           branch="${{ inputs.branch }}"
           build_type="${{ inputs.build_type }}"
           output_zip="${{ env.output_zip }}"
+          url_base="https://repo.justsome.site/"
+          repo_url=""
           
           IFS=',' read -r -a target_repos <<< "$target_repo"
           #10
@@ -300,6 +303,7 @@ jobs:
             zip="${{ env.DalamudDevPlugins }}/$target/$file_name.zip"
             repo_name_file="${repo_name,,}.json"
             repo_file="${{ env.DalamudDevPlugins }}/$target/$repo_name_file"
+            repo_url="${url_base}${target}/${repo_name_file}"
             echo " > $repo_file"
             #26
             # Load manifest data
@@ -329,7 +333,6 @@ jobs:
               echo '    "DalamudApiLevel": "'$manifest_dalamudapilevel'",' >> "$repo_file"
               echo '    "IconUrl": "'$manifest_iconurl'",' >> "$repo_file"
               #52
-              url_base="https://repo.justsome.site/"
               main_url="${url_base}${target}/${file_name}.zip"
               echo '    "DownloadLinkInstall": "'$main_url'",' >> "$repo_file"
               echo '    "DownloadLinkUpdate": "'$main_url'",' >> "$repo_file"
@@ -358,6 +361,8 @@ jobs:
           
             rm "${{ env.DalamudDevPlugins }}/${internal_name}.json"
           done
+          
+          echo "repo_url=$repo_url" >> $GITHUB_OUTPUT
 
       # todo: support reading an existing repo file, adding `testing` entries if a plugin matches
 
@@ -410,4 +415,5 @@ jobs:
       build_type: ${{ inputs.build_type }}
       repo: ${{ inputs.repo }}
       branch: ${{ inputs.branch }}
+      repo_url: ${{ outputs.REPO_URL }}
     secrets: inherit
