@@ -258,10 +258,10 @@ jobs:
           for target in "${target_repos[@]}"; do
             if [ "$target" = "individual" ]; then
               target="ind"
-              file_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)$build_type
+              file_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)_$build_type
             else
               target="$target/$branch"
-              file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')$build_type
+              file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')_$build_type
             fi
             echo " > $target/$file_name.zip"
           
@@ -291,11 +291,11 @@ jobs:
             if [ "$target" = "individual" ]; then
               target="ind"
               repo_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)
-              file_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)$build_type
+              file_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)_$build_type
             else
               target="$target/$branch"
               repo_name="repo"
-              file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')$build_type
+              file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')_$build_type
             fi
             zip="${{ env.DalamudDevPlugins }}/$target/$file_name.zip"
             repo_name_file="${repo_name,,}.json"
@@ -376,11 +376,11 @@ jobs:
             if [ "$target" = "individual" ]; then
               target="ind"
               repo_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)
-              file_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)$build_type
+              file_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)_$build_type
             else
               target="$target/$branch"
               repo_name="repo"
-              file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')$build_type
+              file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')_$build_type
             fi
             repo_name="${repo_name,,}.json"
             repo_file="${{ env.DalamudDevPlugins }}/$target/$repo_name"
