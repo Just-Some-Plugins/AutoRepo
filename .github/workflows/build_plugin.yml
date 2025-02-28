@@ -9,9 +9,9 @@ on:
         required: true
         type: string
       target_repo:
-          description: 'The repository to upload the plugin to'
-          required: true
-          type: string
+        description: 'The repository to upload the plugin to'
+        required: true
+        type: string
       target_name:
         description: 'The desired name to build to'
         required: true
@@ -38,6 +38,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DALAMUD_HOME: $HOME/.xlcore/dalamud/Hooks/dev
+    outputs:
+      output_zip: ${{ steps.compress_plugin.outputs.output_zip }}
 
     steps:
       # Debug Inputs
@@ -147,12 +149,14 @@ jobs:
 
       # Compress the plugin
       - name: Compress Plugin
+        id: compress_plugin
         run: |
           dll_path="${{ env.DLL_PATH }}"
           internal_name="${{ env.INTERNAL_NAME }}"
           build_type="${{ inputs.build_type }}"
           output_zip="${{ env.DalamudDevPlugins }}/${internal_name}_${build_type}.zip"
           echo "output_zip=${{ env.DalamudDevPlugins }}/${internal_name}_${build_type}.zip" >> $GITHUB_ENV
+          echo "output_zip=${{ env.DalamudDevPlugins }}/${internal_name}_${build_type}.zip" >> $GITHUB_OUTPUT
           
           self_packaged="${dll_path}/${internal_name}"
           if [ -d "$self_packaged" ] && [ "$(find "$self_packaged" -name '*.zip')" ]; then
@@ -163,8 +167,6 @@ jobs:
             cd $dll_path
             zip -r "$output_zip" ./*
           fi
-
-      # todo: upload the zip as an artifact here, split the rest to new steps
 
       # Verify the plugin package
       - name: Verify Plugin Package
@@ -197,6 +199,36 @@ jobs:
           fi
           
           echo "Plugin package verification passed."
+
+      # Upload the zip as an artifact
+      - name: Upload Plugin Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.build_type }}.zip
+          path: ${{ env.output_zip }}
+          if-no-files-found: error
+          retention-days: 1
+
+  build_repo:
+    needs: build_plugin
+    runs-on: ubuntu-latest
+    env:
+      output_zip: ${{ needs.build_plugin.outputs.output_zip }}
+
+    steps:
+      # Download the uploaded artifact
+      - name: Download Plugin Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.build_type }}.zip
+          path: .
+
+      # List contents of the directory
+      - name: List Current Path Contents
+        id: list_current_contents
+        run: |
+          echo "Listing contents of current path"
+          ls -la
 
       # Build the paths to upload the plugin to
       - name: Build Upload Paths
