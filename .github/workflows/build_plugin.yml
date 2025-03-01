@@ -32,6 +32,9 @@ on:
       BOT_READ_REPOS_TOKEN:
         description: 'A classic PAT with the full `repo` scope'
         required: true
+      BOT_WRITE_REPOS_TOKEN:
+        description: 'Fine-Grained PAT with Repository: Content: Read and Write, on AutoRepo-Web'
+        required: true
 
 jobs:
   build_plugin:
@@ -280,7 +283,7 @@ jobs:
         with:
           repository: Just-Some-Plugins/AutoRepo-Web
           path: web
-          token: ${{ secrets.BOT_READ_REPOS_TOKEN }}
+          token: ${{ secrets.BOT_WRITE_REPOS_TOKEN }}
 
       # Move AutoRepo-Web to the correct location
       - name: Move AutoRepo-Web
