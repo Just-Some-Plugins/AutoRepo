@@ -371,13 +371,37 @@ jobs:
               echo '  }' >> "$repo_file"
               echo ']' >> "$repo_file"
             else
-              echo "Repo file exists: $repo_file"
-              echo "This is not yet fully supported, updating the assembly version."
+              echo "Repo file exists at $repo_file, updating"
           
-              # Open the $repo_file, find the `AssemblyVersion`, and increment it, save the file
+              # Increment the AssemblyVersion
               assembly_version=$(jq -r '.[0].AssemblyVersion' "$repo_file")
               new_assembly_version=$(echo "$assembly_version" | awk -F. -v OFS=. '{$NF += 1 ; print}')
               jq '.[0].AssemblyVersion = "'$new_assembly_version'"' "$repo_file" > tmp.$$.json && mv tmp.$$.json "$repo_file"
+          
+              # Increment the LastUpdate
+              jq '.[0].LastUpdate = '$(date +%s) "$repo_file" > tmp.$$.json && mv tmp.$$.json "$repo_file"
+          
+              if [ "${{ inputs.build_type }}" == "test" ]; then
+                # Increment the TestingAssemblyVersion if present, otherwise add it
+                if jq -e '.[0].TestingAssemblyVersion' "$repo_file" > /dev/null; then
+                    testing_assembly_version=$(jq -r '.[0].TestingAssemblyVersion' "$repo_file")
+                    new_testing_assembly_version=$(echo "$testing_assembly_version" | awk -F. -v OFS=. '{$NF += 1 ; print}')
+                    jq '.[0].TestingAssemblyVersion = "'$new_testing_assembly_version'"' "$repo_file" > tmp.$$.json && mv tmp.$$.json "$repo_file"
+                else
+                    jq '.[0].TestingAssemblyVersion = "'$manifest_testingassemblyversion'"' "$repo_file" > tmp.$$.json && mv tmp.$$.json "$repo_file"
+                fi
+          
+                # Set the TestingDalamudApiLevel if present, otherwise add it, to $manifest_testingdalamudapilevel
+                if jq -e '.[0].TestingDalamudApiLevel' "$repo_file" > /dev/null; then
+                    jq '.[0].TestingDalamudApiLevel = "'$manifest_testingdalamudapilevel'"' "$repo_file" > tmp.$$.json && mv tmp.$$.json "$repo_file"
+                else
+                    jq '.[0].TestingDalamudApiLevel = "'$manifest_testingdalamudapilevel'"' "$repo_file" > tmp.$$.json && mv tmp.$$.json "$repo_file"
+                fi
+          
+                # Set the DownloadLinkTesting to the new zip
+                testing_url="${url_base}${target}/${repo_name}_test.zip"
+                jq '.[0].DownloadLinkTesting = "'$testing_url'"' "$repo_file" > tmp.$$.json && mv tmp.$$.json "$repo_file"
+              fi
             fi
           
             rm "${{ env.DalamudDevPlugins }}/${internal_name}.json"
@@ -385,7 +409,7 @@ jobs:
           
           echo "repo_url=$repo_url" >> $GITHUB_OUTPUT
 
-      # todo: support reading an existing repo file, adding `testing` entries if a plugin matches
+      # todo: support fully updating an existing repo file with manifest data
 
       # Check the repo files
       - name: Check Repo Files
