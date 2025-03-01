@@ -273,6 +273,13 @@ jobs:
           done
           
           rm "$output_zip"
+          
+      # Checkout the AutoRepo-Web repository
+      - name: Checkout AutoRepo-Web Repository
+        uses: actions/checkout@v4
+        with:
+          repository: Just-Some-Plugins/AutoRepo-Web
+          path: ${{ env.DalamudDevPlugins }}
 
       # Build the repo files
       - name: Build Repo File
@@ -333,7 +340,7 @@ jobs:
               echo '    "AssemblyVersion": "'$manifest_assemblyversion'",' >> "$repo_file"
               echo '    "DalamudApiLevel": "'$manifest_dalamudapilevel'",' >> "$repo_file"
               echo '    "IconUrl": "'$manifest_iconurl'",' >> "$repo_file"
-              #52
+              
               main_url="${url_base}${target}/${file_name}.zip"
               echo '    "DownloadLinkInstall": "'$main_url'",' >> "$repo_file"
               echo '    "DownloadLinkUpdate": "'$main_url'",' >> "$repo_file"
@@ -356,8 +363,12 @@ jobs:
               echo ']' >> "$repo_file"
             else
               echo "Repo file exists: $repo_file"
-              echo "This is not yet supported."
-              exit 1
+              echo "This is not yet fully supported, updating the assembly version."
+          
+              # Open the $repo_file, find the `AssemblyVersion`, and increment it, save the file
+              assembly_version=$(jq -r '.[0].AssemblyVersion' "$repo_file")
+              new_assembly_version=$(echo "$assembly_version" | awk -F. -v OFS=. '{$NF += 1 ; print}')
+              jq '.[0].AssemblyVersion = "'$new_assembly_version'"' "$repo_file" > tmp.$$.json && mv tmp.$$.json "$repo_file"
             fi
           
             rm "${{ env.DalamudDevPlugins }}/${internal_name}.json"
