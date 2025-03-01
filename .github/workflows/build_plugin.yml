@@ -346,12 +346,12 @@ jobs:
                 echo '    "TestingAssemblyVersion": "'$manifest_testingassemblyversion'",' >>  "$repo_file"
                 echo '    "TestingDalamudApiLevel": "'$manifest_testingdalamudapilevel'",' >> "$repo_file"
               fi
+              echo '    "LastUpdate": '$(date +%s)',' >> "$repo_file"
           
               echo '    "AcceptsFeedback": false,' >> "$repo_file"
               echo '    "LoadPriority": 0,' >> "$repo_file"
               echo '    "IsHide": false,' >> "$repo_file"
-              echo '    "TestingExclusive": "False",' >> "$repo_file"
-              echo '    "LastUpdate": 0' >> "$repo_file"
+              echo '    "TestingExclusive": "False"' >> "$repo_file"
               echo '  }' >> "$repo_file"
               echo ']' >> "$repo_file"
             else
