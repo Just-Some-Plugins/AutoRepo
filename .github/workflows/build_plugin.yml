@@ -280,6 +280,7 @@ jobs:
         with:
           repository: Just-Some-Plugins/AutoRepo-Web
           path: web
+          token: ${{ secrets.BOT_READ_REPOS_TOKEN }}
 
       # Move AutoRepo-Web to the correct location
       - name: Move AutoRepo-Web
