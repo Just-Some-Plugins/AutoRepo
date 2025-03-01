@@ -279,7 +279,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Just-Some-Plugins/AutoRepo-Web
-          path: ${{ env.DalamudDevPlugins }}
+
+      # Move AutoRepo-Web to the correct location
+      - name: Move AutoRepo-Web
+        run: |
+          mv Just-Some-Plugins/AutoRepo-Web/* ${{ env.DalamudDevPlugins }}
 
       # Build the repo files
       - name: Build Repo File
