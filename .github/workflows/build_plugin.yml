@@ -239,6 +239,14 @@ jobs:
           name: ${{ inputs.build_type }}
           path: ${{ env.DalamudDevPlugins }}
 
+      # Checkout the AutoRepo-Web repository
+      - name: Checkout AutoRepo-Web Repository
+        uses: actions/checkout@v4
+        with:
+          repository: Just-Some-Plugins/AutoRepo-Web
+          path: web
+          token: ${{ secrets.BOT_WRITE_REPOS_TOKEN }}
+
       # List the contents of the dev folder
       - name: List Dev Folder Contents
         id: list_dev_folder_contents
@@ -276,14 +284,6 @@ jobs:
           done
           
           rm "$output_zip"
-          
-      # Checkout the AutoRepo-Web repository
-      - name: Checkout AutoRepo-Web Repository
-        uses: actions/checkout@v4
-        with:
-          repository: Just-Some-Plugins/AutoRepo-Web
-          path: web
-          token: ${{ secrets.BOT_WRITE_REPOS_TOKEN }}
 
       # Move AutoRepo-Web to the correct location
       - name: Move AutoRepo-Web
