@@ -77,7 +77,7 @@ jobs:
         with:
           wait: false
           webhook-url: ${{ secrets.DISCORD_HOOK }}
-          flags: 4
+          #flags: 4 # flags are still broken
           embed-color: 12041720
           embed-title: "Plugin Uploaded: ${{ inputs.repo }}:${{ inputs.branch }}"
           embed-url: "${{ inputs.repo_url }}"
