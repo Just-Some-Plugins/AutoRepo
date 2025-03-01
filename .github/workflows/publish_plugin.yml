@@ -73,11 +73,11 @@ jobs:
 
       # Notify Discord
       - name: Notify Discord (JSP#autorepo-triggers)
-        uses: tsickert/discord-webhook@v6.0.0
+        uses: tsickert/discord-webhook@v7.0.0
         with:
           wait: false
           webhook-url: ${{ secrets.DISCORD_HOOK }}
-          #flags: 4 # Flags are broken in this project
+          flags: 4
           embed-color: 12041720
           embed-title: "Plugin Uploaded: ${{ inputs.repo }}:${{ inputs.branch }}"
           embed-url: "${{ inputs.repo_url }}"
