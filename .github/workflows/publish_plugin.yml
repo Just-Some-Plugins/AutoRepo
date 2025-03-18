@@ -95,8 +95,8 @@ jobs:
       - name: Push changes
         id: push_changes
         run: |
-          git remote set-url origin https://x-access-token:${{ secrets.BOT_WRITE_REPOS_TOKEN }}@github.com/Just-Some-Plugins/AutoRepo-Web.git
-          git push origin main
+          git remote add wp https://x-access-token:${{ secrets.BOT_WRITE_REPOS_TOKEN }}@github.com/Just-Some-Plugins/AutoRepo-Web.git
+          git push wp main
 
       # Notify Discord
       - name: Notify Discord (JSP#autorepo-triggers)
