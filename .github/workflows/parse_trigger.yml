@@ -190,6 +190,4 @@ jobs:
       build_config: ${{ needs.parse_trigger.outputs.trigger_branch_test_build }}
     secrets: inherit
 
-  # todo: add job to build or update repository json
-  # todo: add job to contribute the plugins to AutoRepo-Web
   # todo: add job to update list of repos on discord via bot
