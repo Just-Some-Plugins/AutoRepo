@@ -27,6 +27,9 @@ on:
       DISCORD_HOOK:
         description: 'Discord hook to JSP#autorepo-triggers'
         required: true
+concurrency:
+  group: publish_${{ inputs.build_type }}_${{ inputs.repo }}:${{ inputs.branch }}
+  cancel-in-progress: true
 
 jobs:
   publish_plugin:
