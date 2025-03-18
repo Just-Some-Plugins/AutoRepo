@@ -35,6 +35,9 @@ on:
       BOT_WRITE_REPOS_TOKEN:
         description: 'Fine-Grained PAT with Repository: Content: Read and Write, on AutoRepo-Web'
         required: true
+concurrency:
+  group: build_${{ inputs.build_type }}_${{ inputs.repo }}:${{ inputs.branch }}
+  cancel-in-progress: true
 
 jobs:
   build_plugin:
