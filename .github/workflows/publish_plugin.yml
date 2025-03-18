@@ -77,12 +77,14 @@ jobs:
       - name: Commit changes
         id: commit_changes
         run: |
+          cd ${{ env.DalamudDevPlugins }}
           git commit -m "Upload Plugin: ${{ inputs.repo }}:${{ inputs.branch }}" || echo "No changes to commit"
 
       # Push changes
       - name: Push changes
         id: push_changes
         run: |
+          cd ${{ env.DalamudDevPlugins }}
           git push origin main
 
       # Notify Discord
