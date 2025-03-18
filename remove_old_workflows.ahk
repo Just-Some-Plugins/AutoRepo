@@ -1,19 +1,19 @@
 ; AutoHotkey v2 Script to click at specified coordinates in a loop
 
 ; Should be done on this page: https://github.com/Just-Some-Plugins/AutoRepo/actions
-; Currently set to deleted the 4th workflow in the list
+; Currently set to deleted the 2nd workflow in the list
 ; If you manually close the "deleted successfully" banner, reload the page, it breaks the Y
 
 ; Press Ctrl+Delete to toggle the script on/off
 
 ; ====== User Configurable Variables ======
 ; Coordinates for clicks
-coordOneX := 1854    ; First click (the 3 dots)
-coordOneY := 541
-coordTwoX := 1842    ; Second click (delete workflow)
-coordTwoY := 605
+coordOneX := 1888    ; First click (the 3 dots)
+coordOneY := 388
+coordTwoX := 1869    ; Second click (delete workflow)
+coordTwoY := 450
 coordThreeX := 1431  ; Third click (delete confirmation)
-coordThreeY := 764
+coordThreeY := 762
 
 ; Delay times (in milliseconds)
 shortDelay := 300    ; sub-second delay between clicks
@@ -21,6 +21,16 @@ longDelay := 2500    ; multi-second delay before repeating
 
 ; Height of the "deleted successfully" banner
 bannerHeight := 60   ; Height of the banner in pixels
+
+; Cloudflare settings to delete Pages Deployments (3rd one in the list)
+; https://autorepo.justsome.site/pages
+; coordOneX := 1926    ; First click (the 3 dots)
+; coordOneY := 674
+; coordTwoX := 1890    ; Second click (delete workflow)
+; coordTwoY := 748
+; coordThreeX := 1448  ; Third click (delete confirmation)
+; coordThreeY := 833
+; bannerHeight := 75   ; Height of the banner in pixels
 
 ; ====== Internal Variables ======
 bannerAdded := false ; Flag to track if the banner has been accounted for
