@@ -68,18 +68,23 @@ jobs:
 
       # Change directory to the plugin directory
       - name: Change directory
+        id: change_dir
         run: cd ${{ env.DalamudDevPlugins }}
 
       # Add all changes
       - name: Add changes
+        id: add_changes
         run: git add .
 
       # Commit changes
       - name: Commit changes
-        run: git commit -m "Upload Plugin: ${{ inputs.repo }}:${{ inputs.branch }}" || echo "No changes to commit"
+        id: commit_changes
+        run: |
+          git commit -m "Upload Plugin: ${{ inputs.repo }}:${{ inputs.branch }}" || echo "No changes to commit"
 
       # Push changes
       - name: Push changes
+        id: push_changes
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.BOT_WRITE_REPOS_TOKEN }}@github.com/Just-Some-Plugins/AutoRepo-Web.git
           git push origin main
