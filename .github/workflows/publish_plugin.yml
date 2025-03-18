@@ -56,6 +56,7 @@ jobs:
       - name: Move AutoRepo-Web
         run: |
           mv web/* ${{ env.DalamudDevPlugins }}
+          cd ${{ env.DalamudDevPlugins }}
 
       # Download the uploaded artifact
       - name: Download Plugin Artifact
@@ -74,12 +75,15 @@ jobs:
       # Change directory to the plugin directory
       - name: Change directory
         id: change_dir
-        run: cd ${{ env.DalamudDevPlugins }}
+        run: |
+          cd ${{ env.DalamudDevPlugins }}
 
       # Add all changes
       - name: Add changes
         id: add_changes
-        run: git add .
+        run: |
+          git init
+          git add .
 
       # Commit changes
       - name: Commit changes
