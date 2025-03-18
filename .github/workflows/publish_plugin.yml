@@ -27,37 +27,31 @@ on:
       DISCORD_HOOK:
         description: 'Discord hook to JSP#autorepo-triggers'
         required: true
-concurrency:
-  group: publish_${{ inputs.build_type }}_${{ inputs.repo }}:${{ inputs.branch }}
-  cancel-in-progress: true
 
 jobs:
   publish_plugin:
     runs-on: ubuntu-latest
 
     steps:
-      # Setup folder to place builds into
-      - name: Create Output Folder
-        id: make_output_folder
+      # Set git to use the bot's credentials
+      - name: Setup Git
+        id: setup_git
         run: |
-          dev_folder="${{ runner.temp }}/builds"
-          mkdir -p "$dev_folder"
-          echo "DalamudDevPlugins=$dev_folder" >> $GITHUB_ENV
+          git config --global user.name 'just-some-bot'
+          git config --global user.email 'justsomeplugins@zbee.codes'
 
-      # Checkout the AutoRepo-Web repository
-      - name: Checkout AutoRepo-Web Repository
-        uses: actions/checkout@v4
-        with:
-          repository: Just-Some-Plugins/AutoRepo-Web
-          path: web
-          token: ${{ secrets.BOT_WRITE_REPOS_TOKEN }}
-
-      # Move AutoRepo-Web to the correct location
-      - name: Move AutoRepo-Web
+      # Setup folder and clone repository directly
+      - name: Create Output Folder and Clone Repository
+        id: setup_repo
         run: |
-          mv web/* ${{ env.DalamudDevPlugins }}
-          cd ${{ env.DalamudDevPlugins }}
-
+          cd ${{ runner.temp }}
+          
+          # Clone the repository directly into builds directory
+          git clone https://x-access-token:${{ secrets.BOT_WRITE_REPOS_TOKEN }}@github.com/Just-Some-Plugins/AutoRepo-Web.git builds
+          
+          # Set environment variable for future steps
+          echo "DalamudDevPlugins=${{ runner.temp }}/builds" >> $GITHUB_ENV
+           
       # Download the uploaded artifact
       - name: Download Plugin Artifact
         uses: actions/download-artifact@v4
@@ -72,17 +66,11 @@ jobs:
           echo "Listing contents of the directory to be uploaded:"
           find "${{ env.DalamudDevPlugins }}" -type f
 
-      # Change directory to the plugin directory
-      - name: Change directory
-        id: change_dir
-        run: |
-          cd ${{ env.DalamudDevPlugins }}
-
       # Add all changes
       - name: Add changes
         id: add_changes
         run: |
-          git init
+          cd ${{ env.DalamudDevPlugins }}
           git add .
 
       # Commit changes
@@ -95,8 +83,7 @@ jobs:
       - name: Push changes
         id: push_changes
         run: |
-          git remote add wp https://x-access-token:${{ secrets.BOT_WRITE_REPOS_TOKEN }}@github.com/Just-Some-Plugins/AutoRepo-Web.git
-          git push wp main
+          git push origin main
 
       # Notify Discord
       - name: Notify Discord (JSP#autorepo-triggers)
