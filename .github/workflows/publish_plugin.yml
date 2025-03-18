@@ -44,6 +44,14 @@ jobs:
           mkdir -p "$dev_folder"
           echo "DalamudDevPlugins=$dev_folder" >> $GITHUB_ENV
 
+      # Checkout the AutoRepo-Web repository
+      - name: Checkout AutoRepo-Web Repository
+        uses: actions/checkout@v4
+        with:
+          repository: Just-Some-Plugins/AutoRepo-Web
+          path: ${{ env.DalamudDevPlugins }}
+          token: ${{ secrets.BOT_WRITE_REPOS_TOKEN }}
+
       # Download the uploaded artifact
       - name: Download Plugin Artifact
         uses: actions/download-artifact@v4
@@ -58,21 +66,23 @@ jobs:
           echo "Listing contents of the directory to be uploaded:"
           find "${{ env.DalamudDevPlugins }}" -type f
 
-      # Setup node for github-upload-action
-      - name: Setup node
-        id: setup_node
-        uses: actions/setup-node@v1
+      # Change directory to the plugin directory
+      - name: Change directory
+        run: cd ${{ env.DalamudDevPlugins }}
 
-      # Upload the plugin contents
-      - name: Upload to GitHub
-        uses: LasyIsLazy/github-upload-action@v0.2.0
-        with:
-          access-token: ${{ secrets.BOT_WRITE_REPOS_TOKEN }}
-          file-path: ${{ env.DalamudDevPlugins }}
-          owner: Just-Some-Plugins
-          repo: AutoRepo-Web
-          branch-name: main
-          commit-message: "Upload Plugin: ${{ inputs.repo }}:${{ inputs.branch }}"
+      # Add all changes
+      - name: Add changes
+        run: git add .
+
+      # Commit changes
+      - name: Commit changes
+        run: git commit -m "Upload Plugin: ${{ inputs.repo }}:${{ inputs.branch }}" || echo "No changes to commit"
+
+      # Push changes
+      - name: Push changes
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.BOT_WRITE_REPOS_TOKEN }}@github.com/Just-Some-Plugins/AutoRepo-Web.git
+          git push origin main
 
       # Notify Discord
       - name: Notify Discord (JSP#autorepo-triggers)

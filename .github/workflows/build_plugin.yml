@@ -232,8 +232,11 @@ jobs:
         id: make_output_folder
         run: |
           dev_folder="${{ runner.temp }}/builds"
+          web_folder="${{ runner.temp }}/web"
           mkdir -p "$dev_folder"
+          mkdir -p "$web_folder"
           echo "DalamudDevPlugins=$dev_folder" >> $GITHUB_ENV
+          echo "WebFolder=$web_folder" >> $GITHUB_ENV
 
       # Download the uploaded artifact
       - name: Download Plugin Artifact
@@ -253,7 +256,7 @@ jobs:
       # Move AutoRepo-Web to the correct location
       - name: Move AutoRepo-Web
         run: |
-          mv web/* ${{ env.DalamudDevPlugins }}
+          mv web/* ${{ env.WebFolder }}
 
       # List the contents of the dev folder
       - name: List Dev Folder Contents
@@ -323,6 +326,7 @@ jobs:
             zip="${{ env.DalamudDevPlugins }}/$target/$file_name.zip"
             repo_name_file="${repo_name,,}.json"
             repo_file="${{ env.DalamudDevPlugins }}/$target/$repo_name_file"
+            file_exist="${{ env.WebFolder }}/$target/$repo_name_file"
             repo_url="${url_base}${target}/${repo_name_file}"
             echo " > $repo_file"
             #26
@@ -338,7 +342,7 @@ jobs:
             done
             #36
             # Write repo file
-            if [ ! -f "$repo_file" ]; then
+            if [ ! -f "$file_exist" ]; then
               echo "Repo file does not exist, creating $repo_file"
               echo '[' > "$repo_file"
               echo '  {' >> "$repo_file"
@@ -375,7 +379,12 @@ jobs:
               echo ']' >> "$repo_file"
             else
               echo "Repo file exists at $repo_file, updating"
-          
+              cp "$file_exist" "$repo_file"
+              cp "${{ env.WebFolder }}/$target/${repo_name}_main.zip" "${{ env.DalamudDevPlugins }}/$target/${repo_name}_main.zip"
+              if [ -f "${{ env.WebFolder }}/$target/${repo_name}_test.zip" ]; then
+                cp "${{ env.WebFolder }}/$target/${repo_name}_test.zip" "${{ env.DalamudDevPlugins }}/$target/${repo_name}_test.zip"
+              fi
+              
               # Increment the AssemblyVersion
               assembly_version=$(jq -r '.[0].AssemblyVersion' "$repo_file")
               new_assembly_version=$(echo "$assembly_version" | awk -F. -v OFS=. '{$NF += 1 ; print}')
