@@ -94,14 +94,6 @@ jobs:
           # noinspection UndefinedParamsPresent
           dotnet-version: '9.0.x'
 
-      # Set up .NET
-      - name: Set up .NET8
-        id: setup_net8
-        uses: actions/setup-dotnet@v4
-        with:
-          # noinspection UndefinedParamsPresent
-          dotnet-version: '8.0.x'
-
       # todo: find csproj file and extract the version from it
 
       # Build the plugin

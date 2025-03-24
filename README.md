@@ -22,7 +22,7 @@ to it, Cloudflare will pull and publish those changes to the website.
 
 # Build Troubleshooting
 
-> Builds are ran on `ubuntu-latest`, with `net9.0.*` and `net8.0.*` installed,
+> Builds are ran on `ubuntu-latest`, with `net9.0.*` installed,
 > with all submodules, and all projects restored, directed at a solution file
 > in the root of the repository.
 
