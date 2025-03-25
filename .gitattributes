@@ -4,3 +4,4 @@ remove_old_workflows.ahk linguist-language=Shell
 # Include GitHub Action files in language statistics
 .github/workflows/parse_trigger.yml linguist-detectable=true linguist-language=Shell
 .github/workflows/build_plugin.yml linguist-detectable=true linguist-language=Shell
+.github/workflows/publish_plugin.yml linguist-detectable=true linguist-language=Shell
