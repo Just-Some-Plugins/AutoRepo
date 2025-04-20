@@ -20,6 +20,10 @@ on:
         description: 'The URL of the repo.json file being made, for the last target repo'
         required: true
         type: string
+      file_list:
+        description: 'The list of files to upload'
+        required: true
+        type: string
     secrets:
       BOT_WRITE_REPOS_TOKEN:
         description: 'Fine-Grained PAT with Repository: Content: Read and Write, on AutoRepo-Web'
@@ -51,13 +55,6 @@ jobs:
           
           # Set environment variable for future steps
           echo "DalamudDevPlugins=${{ runner.temp }}/builds" >> $GITHUB_ENV
-
-      # Snapshot the repository state
-      - name: Snapshot Repository State
-        id: snapshot_repo
-        run: |
-          cd ${{ env.DalamudDevPlugins }}
-          git ls-files -s > ../repo_snapshot.txt
            
       # Download the uploaded artifact
       - name: Download Plugin Artifact
@@ -77,9 +74,9 @@ jobs:
       - name: Add Changes
         id: add_changes
         run: |
-          cd ${{ env.DalamudDevPlugins }}
-          git ls-files -s > ../repo_current.txt
-          diff ../repo_snapshot.txt ../repo_current.txt | grep '^>' | awk '{print $4}' | xargs -r git add --force
+          for file in $(cat file_list.txt); do
+            echo "File: $file"
+          done
 
       # Commit changes
       - name: Commit changes

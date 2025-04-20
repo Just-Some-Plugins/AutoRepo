@@ -217,6 +217,7 @@ jobs:
       internal_name: ${{ needs.build_plugin.outputs.internal_name }}
     outputs:
       repo_url: ${{ steps.build_repo_file.outputs.repo_url }}
+      file_list: ${{ steps.list_files.outputs.file_list }}
 
     steps:
       # Setup folder to place builds into
@@ -453,6 +454,16 @@ jobs:
           echo "Listing contents of the directory to be uploaded:"
           find "${{ env.DalamudDevPlugins }}" -type f -printf "%p - Last Modified: %TY-%Tm-%Td %TH:%TM:%TS\n"
 
+      # Make a list of all files in upload content
+      - name: List Files
+          id: list_files
+          run: |
+            echo "Listing all files in the upload content:"
+            find "${{ env.DalamudDevPlugins }}" -type f -printf "%p\n" > file_list.txt
+            echo "Contents of file_list.txt:"
+            cat file_list.txt
+            echo "file_list=$(cat file_list.txt)" >> $GITHUB_OUTPUT
+
       # Re-Upload the zips and  as an artifact
       - name: Re-Upload Plugin Artifacts
         uses: actions/upload-artifact@v4
@@ -475,4 +486,5 @@ jobs:
       repo: ${{ inputs.repo }}
       branch: ${{ inputs.branch }}
       repo_url: ${{ needs.build_repo.outputs.repo_url }}
+      file_list: ${{ needs.build_repo.outputs.file_list }}
     secrets: inherit
