@@ -55,7 +55,23 @@ jobs:
           
           # Set environment variable for future steps
           echo "DalamudDevPlugins=${{ runner.temp }}/builds" >> $GITHUB_ENV
-           
+
+      # Delete the files to be changed
+      - name: Delete Files
+        id: delete_files
+        run: |
+          cd ${{ env.DalamudDevPlugins }}
+          IFS=',' read -r -a files <<< "${{ inputs.file_list }}"
+          for file in "${files[@]}"; do
+            echo "Deleting file: $file"
+            if [ -f "$file" ]; then
+              rm -f "$file"
+              echo "> File deleted"
+            else
+              echo "> File not found or inaccessible!"
+            fi
+          done
+
       # Download the uploaded artifact
       - name: Download Plugin Artifact
         uses: actions/download-artifact@v4
