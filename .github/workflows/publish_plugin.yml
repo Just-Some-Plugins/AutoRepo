@@ -79,8 +79,13 @@ jobs:
           for file in "${files[@]}"; do
             echo "Adding file: $file"
             if [ -f "$file" ]; then
-              git rm --cached "$file" 2>/dev/null || echo "> git: not in index yet"
-              touch "$file"
+              # For zip files, technically modify the file to force a change for git
+              if [[ "$file" == *.zip ]]; then
+                cp "$file" "${file}.bak"
+                # Change a timestamp in the zip comment to force Git to see it as modified
+                echo "Timestamp: $(date)" | zip -z "$file" >/dev/null
+                echo "> Modified zip metadata to force change detection"
+              fi
               git add --force -v "$file" | sed 's/^/> git: /'
               echo "> File staged"
             else
