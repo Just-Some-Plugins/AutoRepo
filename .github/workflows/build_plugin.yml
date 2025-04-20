@@ -456,13 +456,13 @@ jobs:
 
       # Make a list of all files in upload content
       - name: List Files
-          id: list_files
-          run: |
-            echo "Listing all files in the upload content:"
-            find "${{ env.DalamudDevPlugins }}" -type f -printf "%p\n" > file_list.txt
-            echo "Contents of file_list.txt:"
-            cat file_list.txt
-            echo "file_list=$(cat file_list.txt)" >> $GITHUB_OUTPUT
+        id: list_files
+        run: |
+          echo "Listing all files in the upload content:"
+          find "${{ env.DalamudDevPlugins }}" -type f -printf "%p\n" > file_list.txt
+          echo "Contents of file_list.txt:"
+          cat file_list.txt
+          echo "file_list=$(cat file_list.txt)" >> $GITHUB_OUTPUT
 
       # Re-Upload the zips and  as an artifact
       - name: Re-Upload Plugin Artifacts
