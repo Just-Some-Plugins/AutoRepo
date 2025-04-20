@@ -446,6 +446,13 @@ jobs:
             cat "$repo_file"
           done
 
+      # Recursively list the contents of `DalamudDevPlugins`
+      - name: Show Upload Content
+        id: show_content
+        run: |
+          echo "Listing contents of the directory to be uploaded:"
+          find "${{ env.DalamudDevPlugins }}" -type f
+
       # Re-Upload the zips and  as an artifact
       - name: Re-Upload Plugin Artifacts
         uses: actions/upload-artifact@v4
