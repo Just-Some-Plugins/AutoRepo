@@ -459,10 +459,11 @@ jobs:
         id: list_files
         run: |
           echo "Listing all files in the upload content:"
-          find "${{ env.DalamudDevPlugins }}" -type f -printf "%p\n" > file_list.txt
+          find "${{ env.DalamudDevPlugins }}" -type f -printf "%P\n" > file_list.txt
           echo "Contents of file_list.txt:"
           cat file_list.txt
-          echo "file_list=$(cat file_list.txt)" >> $GITHUB_OUTPUT
+          file_list=$(paste -sd ',' file_list.txt)
+          echo "file_list=$file_list" >> $GITHUB_OUTPUT
 
       # Re-Upload the zips and  as an artifact
       - name: Re-Upload Plugin Artifacts

@@ -74,7 +74,8 @@ jobs:
       - name: Add Changes
         id: add_changes
         run: |
-          for file in $(cat file_list.txt); do
+          IFS=',' read -r -a files <<< "${{ inputs.file_list }}"
+          for file in "${files[@]}"; do
             echo "File: $file"
           done
 
