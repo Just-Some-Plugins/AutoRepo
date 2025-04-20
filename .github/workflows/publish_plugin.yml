@@ -64,7 +64,7 @@ jobs:
         id: show_content
         run: |
           echo "Listing contents of the directory to be uploaded:"
-          find "${{ env.DalamudDevPlugins }}" -type f
+          find "${{ env.DalamudDevPlugins }}" -type f -printf "%p - Last Modified: %TY-%Tm-%Td %TH:%TM:%TS\n"
 
       # Add all changes
       - name: Add changes
