@@ -79,11 +79,12 @@ jobs:
           for file in "${files[@]}"; do
             echo "Adding file: $file"
             if [ -f "$file" ]; then
-              git update-index --add --force "$file"
+              git rm --cached "$file" 2>/dev/null || echo "> git: not in index yet"
+              touch "$file"
               git add --force -v "$file" | sed 's/^/> git: /'
               echo "> File staged"
             else
-              echo "> ! File not found or inaccessible !"
+              echo "> File not found or inaccessible!"
             fi
           done
           echo ""
