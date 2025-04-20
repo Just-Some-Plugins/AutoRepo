@@ -79,6 +79,7 @@ jobs:
           for file in "${files[@]}"; do
             echo "Adding file: $file"
             if [ -f "$file" ]; then
+              touch "$file"
               git add --force -v "$file"
               echo "File staged: $file"
             else
@@ -92,7 +93,7 @@ jobs:
         id: commit_changes
         run: |
           cd ${{ env.DalamudDevPlugins }}
-          git commit -m "Upload Plugin: ${{ inputs.repo }}:${{ inputs.branch }}" || echo "No changes to commit"
+          git commit -m "Upload Plugin: ${{ inputs.repo }}:${{ inputs.branch }}" --allow-empty || echo "No changes to commit"
 
       # Push changes
       - name: Push changes
