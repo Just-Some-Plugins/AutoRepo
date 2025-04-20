@@ -78,7 +78,12 @@ jobs:
           IFS=',' read -r -a files <<< "${{ inputs.file_list }}"
           for file in "${files[@]}"; do
             echo "Adding file: $file"
-            git add --force -v "$file"
+            if [ -f "$file" ]; then
+              git add --force -v "$file"
+              echo "File staged: $file"
+            else
+              echo "File not found or inaccessible: $file"
+            fi
           done
           git status
 
