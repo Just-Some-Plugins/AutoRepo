@@ -158,9 +158,15 @@ jobs:
           echo "output_zip=${{ env.DalamudDevPlugins }}/${internal_name}_${build_type}.zip" >> $GITHUB_ENV
           echo "output_zip=${{ env.DalamudDevPlugins }}/${internal_name}_${build_type}.zip" >> $GITHUB_OUTPUT
           
-          echo "No .zip file found in $self_packaged, packaging dll."
-          cd $dll_path
-          zip -r "$output_zip" ./*
+          self_packaged="${dll_path}/${internal_name}"
+          if [ -d "$self_packaged" ] && [ "$(find "$self_packaged" -name '*.zip')" ]; then
+            echo "Found a .zip file in $self_packaged, using that."
+            cp "$self_packaged"/*.zip "$output_zip"
+          else
+            echo "No .zip file found in $self_packaged, packaging dll."
+            cd $dll_path
+            zip -r "$output_zip" ./*
+          fi
 
       # Verify the plugin package
       - name: Verify Plugin Package
