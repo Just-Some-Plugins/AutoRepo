@@ -79,13 +79,14 @@ jobs:
           for file in "${files[@]}"; do
             echo "Adding file: $file"
             if [ -f "$file" ]; then
-              touch "$file"
-              git add --force -v "$file"
-              echo "File staged: $file"
+              git update-index --add --force "$file"
+              git add --force -v "$file" | sed 's/^/> git: /'
+              echo "> File staged"
             else
-              echo "File not found or inaccessible: $file"
+              echo "> ! File not found or inaccessible !"
             fi
           done
+          echo ""
           git status
 
       # Commit changes
@@ -93,7 +94,7 @@ jobs:
         id: commit_changes
         run: |
           cd ${{ env.DalamudDevPlugins }}
-          git commit -m "Upload Plugin: ${{ inputs.repo }}:${{ inputs.branch }}" --allow-empty || echo "No changes to commit"
+          git commit -m "Upload Plugin: ${{ inputs.repo }}:${{ inputs.branch }}" || echo "No changes to commit"
 
       # Push changes
       - name: Push changes
