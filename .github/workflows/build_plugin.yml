@@ -385,6 +385,9 @@ jobs:
               # Increment the LastUpdate
               jq '.[0].LastUpdate = '$(date +%s) "$repo_file" > tmp.$$.json && mv tmp.$$.json "$repo_file"
           
+              # Make sure the DalamudApiLevel is up to date with the manifest
+              jq '.[0].DalamudApiLevel = "'$manifest_dalamudapilevel'"' "$repo_file" > tmp.$$.json && mv tmp.$$.json "$repo_file"
+          
               if [ "${{ inputs.build_type }}" == "test" ]; then
                 # Increment the TestingAssemblyVersion if present, otherwise add it
                 if jq -e '.[0].TestingAssemblyVersion' "$repo_file" > /dev/null; then
