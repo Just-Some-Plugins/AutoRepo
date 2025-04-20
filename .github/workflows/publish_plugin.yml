@@ -74,9 +74,11 @@ jobs:
       - name: Add Changes
         id: add_changes
         run: |
+          cd ${{ env.DalamudDevPlugins }}
           IFS=',' read -r -a files <<< "${{ inputs.file_list }}"
           for file in "${files[@]}"; do
-            echo "File: $file"
+            echo "Adding file: $file"
+            git add --force "$file"
           done
 
       # Commit changes
