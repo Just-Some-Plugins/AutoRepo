@@ -67,6 +67,12 @@ jobs:
           submodules: recursive
           path: repo
 
+      - name: Check signature code
+        id: check_sig
+        run: |
+          cd repo
+          cat WrathCombo\Core\PluginAddressResolver.cs
+
       # Download Dalamud development tools
       - name: Download Dalamud
         id: download_dalamud
