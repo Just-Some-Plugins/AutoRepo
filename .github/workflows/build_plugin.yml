@@ -273,6 +273,7 @@ jobs:
           target_repo="${{ inputs.target_repo }}"
           repo="${{ inputs.repo }}"
           branch="${{ inputs.branch }}"
+          branch="${branch##*/}"
           build_type="${{ inputs.build_type }}"
           output_zip="${{ env.output_zip }}"
           
@@ -305,6 +306,7 @@ jobs:
           target_repo="${{ inputs.target_repo }}"
           repo="${{ inputs.repo }}"
           branch="${{ inputs.branch }}"
+          branch="${branch##*/}"
           build_type="${{ inputs.build_type }}"
           output_zip="${{ env.output_zip }}"
           url_base="https://repo.justsome.site/"
@@ -433,6 +435,7 @@ jobs:
           target_repo="${{ inputs.target_repo }}"
           repo="${{ inputs.repo }}"
           branch="${{ inputs.branch }}"
+          branch="${branch##*/}"
           build_type="${{ inputs.build_type }}"
           
           IFS=',' read -r -a target_repos <<< "$target_repo"
