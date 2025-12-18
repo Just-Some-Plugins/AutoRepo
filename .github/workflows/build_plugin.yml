@@ -316,7 +316,7 @@ jobs:
               file_name=$(echo -n "$repo$branch" | sha256sum | cut -c1-6)_$build_type
             else
               target="$target/$branch"
-              repo_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')
+              repo_name="repo"
               file_name=$(echo -n "${repo,,}" | awk -F'/' '{print $2}')_$build_type
             fi
             zip="${{ env.DalamudDevPlugins }}/$target/$file_name.zip"
@@ -376,7 +376,12 @@ jobs:
             else
               echo "Repo file exists at $repo_file, updating"
               cp "$file_exist" "$repo_file"
-              cp "${{ env.WebFolder }}/$target/${repo_name}_main.zip" "${{ env.DalamudDevPlugins }}/$target/${repo_name}_main.zip"
+              if [ -f "${{ env.WebFolder }}/$target/${file_name}.zip" ]; then
+                cp "${{ env.WebFolder }}/$target/${file_name}.zip" "${{ env.DalamudDevPlugins }}/$target/${file_name}.zip"
+              fi
+              if [ -f "${{ env.WebFolder }}/$target/${repo_name}_main.zip" ]; then
+                cp "${{ env.WebFolder }}/$target/${repo_name}_main.zip" "${{ env.DalamudDevPlugins }}/$target/${repo_name}_main.zip"
+              fi
               if [ -f "${{ env.WebFolder }}/$target/${repo_name}_test.zip" ]; then
                 cp "${{ env.WebFolder }}/$target/${repo_name}_test.zip" "${{ env.DalamudDevPlugins }}/$target/${repo_name}_test.zip"
               fi
