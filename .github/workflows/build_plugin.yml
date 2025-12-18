@@ -386,10 +386,14 @@ jobs:
                 cp "${{ env.WebFolder }}/$target/${repo_name}_test.zip" "${{ env.DalamudDevPlugins }}/$target/${repo_name}_test.zip"
               fi
               
-              # Increment the AssemblyVersion
+              # Increment the AssemblyVersion (only if it matches the manifest, otherwise use manifest version)
               assembly_version=$(jq -r '.[0].AssemblyVersion' "$repo_file")
-              new_assembly_version=$(echo "$assembly_version" | awk -F. -v OFS=. '{$NF += 1 ; print}')
-              jq '.[0].AssemblyVersion = "'$new_assembly_version'"' "$repo_file" > tmp.$$.json && mv tmp.$$.json "$repo_file"
+              if [ "$assembly_version" = "$manifest_assemblyversion" ]; then
+                new_assembly_version=$(echo "$assembly_version" | awk -F. -v OFS=. '{$NF += 1 ; print}')
+              else
+                new_assembly_version="$manifest_assemblyversion"
+              fi
+              jq --arg v "$new_assembly_version" '.[0].AssemblyVersion = $v' "$repo_file" > tmp.$$.json && mv tmp.$$.json "$repo_file"
           
               # Increment the LastUpdate
               jq '.[0].LastUpdate = '$(date +%s) "$repo_file" > tmp.$$.json && mv tmp.$$.json "$repo_file"
