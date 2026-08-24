@@ -42,7 +42,7 @@ jobs:
         id: setup_git
         run: |
           git config --global user.name 'just-some-bot'
-          git config --global user.email 'justsomeplugins@zbee.codes'
+          git config --global user.email 'bot@justsome.site'
 
       # Setup folder and clone repository directly
       - name: Create Output Folder and Clone Repository
